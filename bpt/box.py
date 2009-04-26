@@ -11,7 +11,9 @@ Box class implementation
 
 import os
 from uuid import uuid1
+from tempfile import mktemp # for doctests
 
+import bpt
 from bpt import log, UserError
 from bpt.util import store_info, load_info, get_arch
 
@@ -78,12 +80,27 @@ class Box(object):
         return os.path.basename(os.path.abspath(self.path))
 
     def __eq__(self, other):
+        ''' Compare equality by box_id
+
+        >>> box1 = mktemp()
+        >>> box2 = mktemp()
+        >>> box1 == box1
+        True
+        >>> box1 == box2
+        False
+        '''
         return isinstance(other, Box) and self.box_id == other.box_id
 
     @classmethod
     def create(cls, dest_path):
         '''Creates a directory dest_path and initialize a package box
-        in it.  Returns the initialized box'''
+        in it.  Returns the initialized box
+
+        >>> box_path = mktemp()
+        >>> box = Box.create(box_path)
+        >>> box.path == box_path
+        True
+        '''
         # Safety checks
         if os.path.exists(dest_path):
             raise UserError('Destination already exists')
@@ -99,6 +116,7 @@ class Box(object):
         box_info = dict()
         box_info['id'] = str(uuid1())
         box_info['arch'] = get_arch()
+        box_info['bpt_version'] = bpt.__version__
         store_info(os.path.join(dest_path, 'bpt_meta', 'box_info'), box_info)
 
         box = cls(dest_path)

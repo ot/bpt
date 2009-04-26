@@ -11,7 +11,7 @@ Utility functions
 
 import os
 from pprint import pprint, isreadable
-from tempfile import mktemp
+from tempfile import mktemp # for doctests
 
 # Simple functions to store small dicts in human readable format
 # WARNING: the stored data is evaluated, so it must be trusted
