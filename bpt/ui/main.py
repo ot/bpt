@@ -15,9 +15,17 @@ from optparse import OptionParser
 
 import bpt
 from bpt import log
+from bpt import ui
 
-def help_commands():
-    pass
+def help_commands(option, opt_str, value, parser):
+    commands = [(x.name, x.doc) for x in ui.commands.get_commands()]
+    commands.sort()
+    for name, description in commands:
+        print '  %-15s %s' % (name, description)
+    print
+    print 'For more informations about <command> run "%s <command> --help"' % parser.get_prog_name()
+    parser.exit()
+    
 
 def setup_optparse():
     parser = OptionParser(
@@ -36,11 +44,23 @@ def setup_optparse():
     return parser
     
 def main(argv):
-    # set up default logging
+    # set up default logging 
+    # TODO(giuott): Add a verbosity option
     logging.basicConfig()
     log.setLevel(logging.INFO)
     
     parser = setup_optparse()
     options, args = parser.parse_args(argv[1:])
+    
+    command = args[0]
+    cmd_args = args[1:]
+    config = None # XXX(ot) put a real config
+
+    try:
+        return ui.commands.dispatch(command, config, cmd_args)
+    except ui.commands.CommandNotFound:
+        log.error("Command %s not found", command)
+	parser.print_help()
+	return 255
     
     
