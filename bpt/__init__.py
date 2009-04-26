@@ -13,5 +13,7 @@ __version__ = '0.1'
 __author__ = 'Giuseppe Ottaviano <giuott@gmail.com>'
 
 import logging
-
 log = logging.getLogger('BPT')
+
+class UserError(Exception):
+    '''Error to be reported to the user'''

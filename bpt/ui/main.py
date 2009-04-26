@@ -16,6 +16,7 @@ from optparse import OptionParser
 import bpt
 from bpt import log
 from bpt import ui
+from bpt.config import Config
 
 def help_commands(option, opt_str, value, parser):
     commands = [(x.name, x.doc) for x in ui.commands.get_commands()]
@@ -58,7 +59,7 @@ def main(argv):
 
     command = args[0]
     cmd_args = args[1:]
-    config = None # XXX(ot) put a real config
+    config = Config()
 
     try:
         return ui.commands.dispatch(command, config, cmd_args)
@@ -66,5 +67,7 @@ def main(argv):
         log.error("Command %s not found", command)
 	parser.print_help()
 	return 255
-    
+    except bpt.UserError, e:
+        log.error('Aborting: %s', e.message)
+        return 1
     
