@@ -1,0 +1,17 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+'''\
+Command line frontend for BPT
+'''
+#*****************************************************************************
+#       Copyright (C) 2009 Giuseppe Ottaviano <giuott@gmail.com>
+#
+#  Distributed under the terms of the GPL License.  The full license is in
+#  the file COPYING, distributed as part of this software.
+#*****************************************************************************
+
+import sys
+
+from bpt.ui.main import main
+
+sys.exit(main(sys.argv))

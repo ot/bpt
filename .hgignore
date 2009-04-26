@@ -1,0 +1,14 @@
+syntax: glob
+
+# Backup files
+*~
+.\#*
+
+# Python compiled files
+*.pyc
+
+syntax: regexp
+
+# Distutils build directory
+^build/
+
