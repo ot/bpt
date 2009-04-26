@@ -30,7 +30,7 @@ class create(Command):
 	Box.create(box_path)
 
 class sync(Command):
-    doc = 'Synchronize a sandbox'
+    doc = 'Synchronize a package box'
     name = 'sync'
     usage_args = ''
 

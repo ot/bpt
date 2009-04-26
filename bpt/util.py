@@ -80,3 +80,9 @@ def path_diff(start, path):
     else:
         return os.path.join(*(path_list[i:])), os.path.join(*((os.path.pardir,)*(p-i)))
 
+# XXX transitional, replace commands.getstatusoutput
+def getstatusoutput(command):
+     from subprocess import Popen, PIPE, STDOUT
+     p = Popen(command, stdout=PIPE, stderr=STDOUT, shell=True)
+     s = p.communicate()[0]
+     return p.wait(), s

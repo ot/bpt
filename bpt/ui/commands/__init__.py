@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from bpt.ui.commands import \
-    basic_commands
+    basic_commands, \
+    build
+
