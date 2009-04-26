@@ -52,6 +52,10 @@ def main(argv):
     parser = setup_optparse()
     options, args = parser.parse_args(argv[1:])
     
+    if not args:
+	parser.print_help()
+	return 255
+
     command = args[0]
     cmd_args = args[1:]
     config = None # XXX(ot) put a real config
