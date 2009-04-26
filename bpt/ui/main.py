@@ -69,8 +69,8 @@ def main(argv):
             # XXX(ot): detect current box
             config.box = None
 
-        return ui.commands.dispatch(command, config, cmd_args)
-    except ui.commands.CommandNotFound:
+        return ui.command.dispatch(command, config, cmd_args)
+    except ui.command.CommandNotFound:
         log.error("Command %s not found", command)
 	parser.print_help()
 	return 255

@@ -9,7 +9,7 @@ Basic BPT commands
 #  the file COPYING, distributed as part of this software.
 #*****************************************************************************
 
-from bpt.ui.commands import Command
+from bpt.ui.command import Command
 from bpt.box import Box, require_box
 
 class create(Command):
