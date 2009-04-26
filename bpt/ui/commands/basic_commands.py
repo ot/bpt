@@ -10,7 +10,7 @@ Basic BPT commands
 #*****************************************************************************
 
 from bpt.ui.commands import Command
-from bpt.box import Box
+from bpt.box import Box, require_box
 
 class create(Command):
     
@@ -25,3 +25,16 @@ class create(Command):
 
         box_path = args[0]
 	Box.create(box_path)
+
+class sync(Command):
+    doc = 'Synchronize a sandbox'
+    name = 'sync'
+    usage_args = ''
+
+    def _run(self, config, options, args):
+	if len(args) != 0:
+	    self.parser.print_help()
+	    return 1
+
+        require_box(config)
+        config.box.sync()

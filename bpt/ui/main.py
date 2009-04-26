@@ -17,6 +17,7 @@ import bpt
 from bpt import log
 from bpt import ui
 from bpt.config import Config
+from bpt.box import Box
 
 def help_commands(option, opt_str, value, parser):
     commands = [(x.name, x.doc) for x in ui.commands.get_commands()]
@@ -39,7 +40,7 @@ def setup_optparse():
                       callback=help_commands,
                       help='informations about available commands')
     parser.add_option('-b', '--box', action='store',
-                      type='string', dest='box',
+                      type='string', dest='box_path',
 		      help='box path. If not specified, use the current one.')
 
     return parser
@@ -62,12 +63,18 @@ def main(argv):
     config = Config()
 
     try:
+        if options.box_path is not None:
+            config.box = Box(options.box_path)
+        else:
+            # XXX(ot): detect current box
+            config.box = None
+
         return ui.commands.dispatch(command, config, cmd_args)
     except ui.commands.CommandNotFound:
         log.error("Command %s not found", command)
 	parser.print_help()
 	return 255
-    except bpt.UserError, e:
-        log.error('Aborting: %s', e.message)
+    except bpt.UserError, exc:
+        log.error('Aborting: %s', exc.message)
         return 1
     

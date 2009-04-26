@@ -1,0 +1,32 @@
+#!/bin/bash
+
+export BPT_BOX_PATH=$(cd $(dirname "$0") && pwd) # get the directory of this file XXX(ot): better ways to do that?
+VIRTUAL_PATH="%(virtual_path)s"
+
+if ( ! ln -sn "$BPT_BOX_PATH" "$VIRTUAL_PATH" 2> /dev/null ) 
+then # The destination path already exists
+    if [ $(readlink -f "$VIRTUAL_PATH") != $(readlink -f "$BPT_BOX_PATH") ] 
+    then # and it doesn't point to the current box
+        echo "ERROR: \"$VIRTUAL_PATH\" already exists and it does not point to the current box."
+        echo "Please remove it manually."
+        exit 1
+    fi
+fi
+    
+# export PATH="$VIRTUAL_PATH/bin${PATH:+:$PATH}"
+# export LD_LIBRARY_PATH="$VIRTUAL_PATH/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+# export DYLD_LIBRARY_PATH="$VIRTUAL_PATH/lib${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}" # For Darwin
+# export LIBRARY_PATH="$VIRTUAL_PATH/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
+# export CPATH="$VIRTUAL_PATH/include${CPATH:+:$CPATH}"
+# export MANPATH="$VIRTUAL_PATH/man${MANPATH:+:$MANPATH}"
+# export PKG_CONFIG_PATH="$VIRTUAL_PATH/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+
+# Update standard paths
+%(path_updates)s
+
+# For PYTHONPATH we have to know python's version
+PYTHONVERSION=$(python -c "import sys; print '.'.join([str(x) for x in sys.version_info[:2]])")
+export PYTHONPATH="$VIRTUAL_PATH/lib/python$PYTHONVERSION/site-packages${PYTHONPATH:+:$PYTHONPATH}"
+
+%(pkg_env_scripts)s
+eval "$@"
