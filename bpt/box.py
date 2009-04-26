@@ -72,6 +72,14 @@ class Box(object):
         that points to the box, but does not depend on the actual path'''
         return os.path.join('/tmp', 'box_' + self.box_id)
 
+    @property
+    def name(self):
+        '''The name of the box, defined as the basename of the directory'''
+        return os.path.basename(os.path.abspath(self.path))
+
+    def __eq__(self, other):
+        return isinstance(other, Box) and self.box_id == other.box_id
+
     @classmethod
     def create(cls, dest_path):
         '''Creates a directory dest_path and initialize a package box
@@ -125,3 +133,16 @@ def require_box(config):
     '''Raise an exception if config.box is None'''
     if config.box is None:
         raise UserError('No box given')
+
+def get_current_box():
+    ''' If we are in a box environment, return the current box.
+    Otherwise None.'''
+    box_path = os.environ.get('BPT_BOX_PATH', None)
+    if box_path is not None:
+        try:
+            box = Box(box_path)
+            return box
+        except UserError, exc:
+            log.warning('Not using current box %s because of error "%s"', box_path, exc.message)
+    return None
+    

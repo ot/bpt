@@ -17,7 +17,7 @@ import bpt
 from bpt import log
 from bpt import ui
 from bpt.config import Config
-from bpt.box import Box
+from bpt.box import Box, get_current_box
 
 def help_commands(option, opt_str, value, parser):
     commands = [(x.name, x.doc) for x in ui.commands.get_commands()]
@@ -66,8 +66,7 @@ def main(argv):
         if options.box_path is not None:
             config.box = Box(options.box_path)
         else:
-            # XXX(ot): detect current box
-            config.box = None
+            config.box = get_current_box()
 
         return ui.command.dispatch(command, config, cmd_args)
     except ui.command.CommandNotFound:
