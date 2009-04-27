@@ -17,8 +17,8 @@ from tempfile import mktemp # for doctests
 
 import bpt
 from bpt import log, UserError
-from bpt.util import store_info, load_info, get_arch
-from bpt.linkdir import linkdir
+from bpt.util import store_info, load_info
+from bpt.linkdir import linkdir, unlinkdir
 from bpt.package import Package
 
 # Directories created inside the box
@@ -59,7 +59,7 @@ class Box(object):
 
         try:
             self._id = box_info['id']
-            self._arch = box_info['arch']
+            self._platform = box_info['platform']
         except KeyError, exc:
             raise UserError('Invalid box_info: missing "%s"', exc.message)
 
@@ -123,7 +123,7 @@ class Box(object):
 
         box_info = dict()
         box_info['id'] = str(uuid1())
-        box_info['arch'] = get_arch()
+        box_info['platform'] = _get_platform()
         box_info['bpt_version'] = bpt.__version__
         store_info(os.path.join(dest_path, 'bpt_meta', 'box_info'), box_info)
 
@@ -144,10 +144,14 @@ class Box(object):
 
         # Relink all packages    
         for package in self.packages(only_enabled=True):
-            self._relink_package(package)
+            self._link_package(package)
 
         self._create_env_script()
         log.info('Synchronized box')
+
+    def get_package(self, pkgname):
+        pkgs_dir = os.path.join(self.path, 'pkgs')
+        return Package(os.path.join(pkgs_dir, pkgname))
 
     def packages(self, only_enabled=False, matching=None):
         '''Iterates on the installed packages. If only_enabled is
@@ -156,31 +160,57 @@ class Box(object):
         it matches at least one regexp
         '''
         if matching is not None:
-            regexps = [re.compile(pattern) for pattern in matching]
-        pkgs_dir = os.path.join(self.path, 'pkgs')
-        for pkgdir in os.listdir(os.path.join(self.path, 'pkgs')):
+            regexps = [re.compile(pattern + '$', re.IGNORECASE) for pattern in matching]
+        for pkgname in os.listdir(os.path.join(self.path, 'pkgs')):
             try:
-                pkg = Package(os.path.join(pkgs_dir, pkgdir))
+                pkg = self.get_package(pkgname)
             except UserError:
-                log.warning('Invalid entry in pkgs: %s', pkgdir)
-            else:
-                if not only_enabled or pkg.enabled:
-                    if matching is None:
-                        yield pkg
-                    else:
-                        for regexp in regexps:
-                            if regexp.match(pkg.name):
-                                yield pkg
-                                break
+                log.warning('Invalid entry in pkgs: %s', pkgname)
+                continue
+            if not only_enabled or pkg.enabled:
+                if matching is None:
+                    yield pkg
+                else:
+                    for regexp in regexps:
+                        if regexp.match(pkg.name):
+                            yield pkg
+                            break
                             
+    def enable_package(self, package):
+        # XXX(ot): disable other versions
+        log.info('Enabling package %s', package)
+        package.enabled = True
+        self._link_package(package)
+        self._create_env_script()
+        
 
-    def _relink_package(self, package):
-        log.info('Relinking package %s' % package.name)
+    def disable_package(self, package, remove=False):
+        if not remove:
+            log.info('Disabling package %s', package)
+        else:
+            log.info('Removing package %s', package)
+
+        package.enabled = False
+        self._unlink_package(package)
+        self._create_env_script()
+        if remove:
+            shutil.rmtree(package.path)
+
+    def _link_package(self, package):
+        log.info('Linking package %s' % package.name)
 
         for d in DYN_DIRS:
             src_path = os.path.abspath(os.path.join(package.path, d))
             dest_path = os.path.abspath(os.path.join(self.path, d))
             linkdir(src_path, dest_path)
+
+    def _unlink_package(self, package):
+        log.info('Unlinking package %s' % package.name)
+
+        for d in DYN_DIRS:
+            src_path = os.path.abspath(os.path.join(package.path, d))
+            dest_path = os.path.abspath(os.path.join(self.path, d))
+            unlinkdir(src_path, dest_path)
 
     def _create_env_script(self):
         virtual_path = self.virtual_path
@@ -231,3 +261,7 @@ def get_current_box():
             log.warning('Not using current box %s because of error "%s"', box_path, exc.message)
     return None
     
+def _get_platform():
+    u = os.uname()
+    return (u[0], u[4])
+

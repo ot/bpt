@@ -10,6 +10,7 @@ Basic BPT commands
 #*****************************************************************************
 
 import os
+from optparse import make_option
 from subprocess import call
 
 from bpt.ui.command import Command
@@ -96,3 +97,47 @@ class status(Command):
                          package.app_version,
                          pkg_status)
         print
+
+class disable(Command):
+    doc = 'Disable the packages that match the patterns'
+
+    name = 'disable'
+    usage_args = '[pattern1 pattern2 ...]'
+
+    def __init__(self):
+	options = [make_option('-r', '--remove', action='store_true',
+			       dest='remove',
+			       help='Remove the packages after disabling them.')
+		   ]
+	Command.__init__(self, options)
+	
+
+    def _run(self, config, cmd_options, cmd_args):
+	if not cmd_args:
+	    self.parser.print_help()
+	    return 1
+
+        require_box(config)
+
+        patterns = cmd_args
+
+        for package in config.box.packages(matching=patterns):
+            config.box.disable_package(package, remove=cmd_options.remove)
+
+class enable(Command):
+    doc = 'Enable the packages that match the patterns'
+
+    name = 'enable'
+    usage_args = '[pattern1 pattern2 ...]'
+
+    def _run(self, config, cmd_options, cmd_args):
+	if not cmd_args:
+	    self.parser.print_help()
+	    return 1
+
+        require_box(config)
+
+        patterns = cmd_args
+
+        for package in config.box.packages(matching=patterns):
+            config.box.enable_package(package)

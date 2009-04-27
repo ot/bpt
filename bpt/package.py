@@ -12,25 +12,57 @@ Package class
 import os
 
 from bpt import UserError
-from bpt.util import load_info
+from bpt.util import store_info, load_info
 
 class Package(object):
-    '''A package installed in a box, i.e. a subdirectory of <box>/pkgs'''
+    '''A package installed in a box, i.e. a subdirectory of
+    <box>/pkgs. The attributes are kept in sync with the stored
+    pkg_info'''
+
     def __init__(self, pkgdir):
         # XXX(ot): better exceptions? metadata version handling?
 
-        self.path = pkgdir
-        self.name = os.path.basename(pkgdir)
+        self._path = pkgdir
+        self._name = os.path.basename(pkgdir)
+        self._dict = load_info(_pkg_info_file(pkgdir))
+
+        # Sanity check
+        for k in ['app_name', 'app_version', 'enabled']:
+            if k not in self._dict:
+                raise UserError('Invalid package')
+
+    @classmethod
+    def create(cls, pkgdir, **kwArgs):
+        store_info(_pkg_info_file(pkgdir), kwArgs)
+        return cls(pkgdir)
+        
+
+    def __getattr__(self, attr):
+        if attr.startswith('_'):
+            return object.__getattr__(self, attr)
 
         try:
-            pkg_info = load_info(os.path.join(pkgdir, 'bpt_meta', 'pkg_info'))
-        except OSError:
-            raise UserError('Invalid package')
-        
-        try:
-            self.app_name = pkg_info['app_name']
-            self.app_version = pkg_info['app_version']
-            self.enabled = pkg_info['enabled']
-        except KeyError:
-            raise UserError('Invalid package')
-        
+            return self._dict[attr]
+        except KeyError, e:
+            raise AttributeError(e.message)
+
+    def __setattr__(self, attr, value):
+        if attr.startswith('_'):
+            return object.__setattr__(self, attr, value)
+
+        self._dict[attr] = value
+        store_info(_pkg_info_file(self._path), self._dict)
+
+    @property
+    def path(self):
+        return self._path
+
+    @property
+    def name(self):
+        return self._name
+
+    def __str__(self):
+        return self.name
+
+def _pkg_info_file(pkgdir):
+    return os.path.join(pkgdir, 'bpt_meta', 'pkg_info')

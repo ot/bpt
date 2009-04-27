@@ -52,10 +52,6 @@ def load_info(filename):
         
 # Other util functions
 
-def get_arch():
-    u = os.uname()
-    return (u[0], u[4])
-
 def path_diff(start, path):
     '''Returns the relative path of a path from directory start, and
     the relative path to go back. Similar to Python 2.6 relpath, works
