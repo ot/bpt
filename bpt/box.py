@@ -196,6 +196,10 @@ class Box(object):
         if remove:
             shutil.rmtree(package.path)
 
+    def check_platform(self):
+        '''Check that the current platform is the same as box's one'''
+        return self._platform == _get_platform()
+
     def _link_package(self, package):
         log.info('Linking package %s' % package.name)
 

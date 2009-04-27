@@ -22,6 +22,9 @@ class SourceDir(object):
         self._rulesfile = os.path.join(sourcedir, 'bpt-rules')
         if not os.path.exists(self._rulesfile):
             raise UserError('Invalid sourcedir')
+
+    @property
+    def path(self): return self._sourcedir
     
     def get_var(self, var, can_be_empty=False):
         # XXX(ot) find a better way to do this
@@ -44,8 +47,11 @@ class SourceDir(object):
 
         pkgname = '%s-%s%s' % (appname, version, name_suffix)
         pkg_prefix = os.path.join(box.virtual_path, 'pkgs', pkgname)
+
         # XXX(ot): check last box built
-        # XXX(ot): check arch
+        
+        if not box.check_platform():
+            raise UserError('Current platform is different from box\'s platform')
 
         log.info('Building application %s, in sourcedir %s', appname, self._sourcedir)
 
@@ -66,4 +72,24 @@ class SourceDir(object):
 
         box.enable_package(pkg)
         
+    def clean(self, deep=False):
+        log.info('Cleaning sourcedir %s', self.path)
+        sh_line = ('cd %s;' % self.path
+                   + 'source bpt-rules;'
+                   + 'clean;'
+                   )
+        if deep: 
+            sh_line += 'deepclean;'
+        exitstatus, outtext = getstatusoutput("bash -e -c '%s'" % sh_line)
+        assert exitstatus == 0, (exitstatus, outtext)
 
+    def unittest(self):
+        log.info('Testing sourcedir %s', self.path)
+        sh_line = ('cd %s;' % self.path
+                   + 'source bpt-rules;'
+                   + 'unittest'
+                   )
+        exitstatus = call(['bash', '-e', '-c', sh_line])
+        assert exitstatus == 0, exitstatus
+        
+    

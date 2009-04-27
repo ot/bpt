@@ -17,7 +17,7 @@ from bpt.box import Box, require_box
 from bpt.build import SourceDir
 
 class build(Command):
-    doc = 'Build a package inside the box'
+    doc = 'Build a set of sourcedirs into the box'
 
     name = 'build'
     usage_args = '<source package> ...'
@@ -42,8 +42,44 @@ class build(Command):
         require_box(config)
 
 	for sourcedir in cmd_args:
-	    if cmd_options.clean_before:
-		# XXX(ot): clean
-                pass
             sd = SourceDir(sourcedir)
+	    if cmd_options.clean_before:
+                sd.clean()
             sd.build(config.box, cmd_options.suffix)
+
+class clean(Command):
+    doc = 'Clean a set of sourcedirs'
+
+    name = 'clean'
+    usage_args = '<source package> ...'
+
+    def __init__(self):
+	options = [make_option('-d', '--deep', action='store_true',
+			       dest='deep',
+			       help='Deep clean: erase also downloaded files, etc...')
+		   ]
+	Command.__init__(self, options)
+
+    def _run(self, config, cmd_options, cmd_args):
+	if not cmd_args:
+	    self.parser.print_help()
+	    return 1
+
+	for sourcedir in cmd_args:
+            sd = SourceDir(sourcedir, config.deep)
+            sd.clean()
+
+class unittest(Command):
+    doc = 'Run unit tests inside a set of sourcedirs'
+
+    name = 'unittest'
+    usage_args = '<source package> ...'
+
+    def _run(self, config, cmd_options, cmd_args):
+	if not cmd_args:
+	    self.parser.print_help()
+	    return 1
+
+	for sourcedir in cmd_args:
+            sd = SourceDir(sourcedir)
+            sd.unittest()
