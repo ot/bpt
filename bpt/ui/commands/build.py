@@ -17,9 +17,8 @@ from bpt.box import Box, require_box
 from bpt.build import SourceDir
 
 class build(Command):
-    doc = 'Build a set of sourcedirs into the box'
+    '''Build a set of sourcedirs into the box'''
 
-    name = 'build'
     usage_args = '<source package> ...'
 
     def __init__(self):
@@ -48,9 +47,8 @@ class build(Command):
             sd.build(config.box, cmd_options.suffix)
 
 class clean(Command):
-    doc = 'Clean a set of sourcedirs'
+    '''Clean a set of sourcedirs'''
 
-    name = 'clean'
     usage_args = '<source package> ...'
 
     def __init__(self):
@@ -70,9 +68,8 @@ class clean(Command):
             sd.clean()
 
 class unittest(Command):
-    doc = 'Run unit tests inside a set of sourcedirs'
+    '''Run unit tests inside a set of sourcedirs'''
 
-    name = 'unittest'
     usage_args = '<source package> ...'
 
     def _run(self, config, cmd_options, cmd_args):

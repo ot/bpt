@@ -16,11 +16,11 @@ from optparse import OptionParser
 import bpt
 from bpt import log
 from bpt import ui
-from bpt.config import Config
+from bpt.ui.config import Config
 from bpt.box import Box, get_current_box
 
 def help_commands(option, opt_str, value, parser):
-    commands = [(x.name, x.doc) for x in ui.commands.get_commands()]
+    commands = [(x.__name__, x.__doc__) for x in ui.command.get_commands()]
     commands.sort()
     for name, description in commands:
         print '  %-15s %s' % (name, description)

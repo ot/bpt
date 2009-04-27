@@ -14,10 +14,9 @@ import optparse
 # This code is inspired by jhbuild's commands framework
 
 class Command(object):
-    '''Base class for Command objects'''
+    '''Base class for Command objects.'''
     
     def __init__(self, options=[]):
-        assert self.name is not None
         self.options = options
 
     def execute(self, config, cmd_args):
@@ -26,14 +25,13 @@ class Command(object):
 
     def _parse_args(self, args):
         self.parser = optparse.OptionParser(
-            usage='%%prog %s %s' % (self.name, self.usage_args),
-            description=self.doc)
+            usage='%%prog %s %s' % (type(self).__name__, self.usage_args),
+            description=type(self).__doc__)
         self.parser.add_options(self.options)
         return self.parser.parse_args(args)
 
-    # Override the following
-    doc = ''
-    name = None
+    # Override the following 
+    # __doc__ = ...
     usage_args = '[ options ... ]'
 
     def _run(self, config, options, pos_args):
@@ -49,7 +47,7 @@ def dispatch(command, config, cmd_args):
     '''Run a command. Raises CommandNotFound if command does not exist'''
     
     for cmd_class in get_commands():
-        if cmd_class.name == command:
+        if cmd_class.__name__ == command:
             break
     else:
         raise CommandNotFound

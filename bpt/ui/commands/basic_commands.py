@@ -17,9 +17,8 @@ from bpt.ui.command import Command
 from bpt.box import Box, require_box, get_current_box
 
 class create(Command):
-    
-    doc = 'Create a new package box'
-    name = 'create'
+    '''Create a new package box'''
+
     usage_args = '<box path>'
 
     def _run(self, config, cmd_options, cmd_args):
@@ -31,8 +30,8 @@ class create(Command):
 	Box.create(box_path)
 
 class sync(Command):
-    doc = 'Synchronize a package box'
-    name = 'sync'
+    '''Synchronize a package box'''
+
     usage_args = ''
 
     def _run(self, config, cmd_options, cmd_args):
@@ -44,9 +43,8 @@ class sync(Command):
         config.box.sync()
 
 class shell(Command):
-    doc = 'Run a shell in the box\'s environment'
+    '''Run a shell in the box\'s environment'''
 
-    name = 'shell'
     usage_args = ''
 
     def _run(self, config, cmd_options, cmd_args):
@@ -68,9 +66,8 @@ class shell(Command):
             call(['bash', env_script, 'PS1="%s"' % shell_prompt, 'bash', '-norc', '-noprofile'])
 
 class status(Command):
-    doc = 'Show the installed packages. Packages can be narrowed down using a regex'
+    '''Show the installed packages. Packages can be narrowed down using a regex'''
 
-    name = 'status'
     usage_args = '[pattern1 pattern2 ...]'
 
     def _run(self, config, cmd_options, cmd_args):
@@ -99,9 +96,8 @@ class status(Command):
         print
 
 class disable(Command):
-    doc = 'Disable the packages that match the patterns'
+    '''Disable the packages that match the patterns'''
 
-    name = 'disable'
     usage_args = '[pattern1 pattern2 ...]'
 
     def __init__(self):
@@ -125,9 +121,8 @@ class disable(Command):
             config.box.disable_package(package, remove=cmd_options.remove)
 
 class enable(Command):
-    doc = 'Enable the packages that match the patterns'
+    '''Enable the packages that match the patterns'''
 
-    name = 'enable'
     usage_args = '[pattern1 pattern2 ...]'
 
     def _run(self, config, cmd_options, cmd_args):
