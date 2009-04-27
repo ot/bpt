@@ -7,6 +7,8 @@ syntax: glob
 # Python compiled files
 *.pyc
 
+semantic.cache
+
 syntax: regexp
 
 # Distutils build directory
