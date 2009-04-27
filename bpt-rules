@@ -1,0 +1,20 @@
+#!/bin/bash 
+
+BPT_APP_NAME=`python -c 'import setup; print setup.app_name'`
+BPT_APP_VERSION=`python -c 'import setup; print setup.app_version'`
+
+build() {
+    python setup.py install --prefix=$BPT_PKG_PREFIX
+}
+
+unittest() {
+    nosetests -v --with-doctest
+}
+
+clean() {
+    python setup.py clean --all
+}
+
+deepclean() {
+    true
+}

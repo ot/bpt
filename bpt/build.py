@@ -51,7 +51,6 @@ class SourceDir(object):
 
         # Build
         sh_line = ('cd %s;' % self._sourcedir
-                   + 'rm -fr "%s";' % pkg_prefix
                    + 'mkdir -p "%s"/bpt_meta;' % pkg_prefix # create the prefix and its 'bpt_meta' subdir
                    + 'export BPT_PKG_PREFIX="%s";' % pkg_prefix
                    + 'source bpt-rules;'
