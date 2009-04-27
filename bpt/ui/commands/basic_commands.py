@@ -22,11 +22,11 @@ class create(Command):
     usage_args = '<box path>'
 
     def _run(self, config, cmd_options, cmd_args):
-	if len(args) != 1:
+	if len(cmd_args) != 1:
 	    self.parser.print_help()
 	    return 1
 
-        box_path = args[0]
+        box_path = cmd_args[0]
 	Box.create(box_path)
 
 class sync(Command):
