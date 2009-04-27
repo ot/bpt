@@ -59,7 +59,12 @@ class SourceDir(object):
         retcode = call(['bash', '-e', '%s/env' % box.path, sh_line])
         assert retcode == 0, 'FATAL: build script exited with status %s' % retcode
 
-        # XXX(ot): write package info
+        pkg_info = dict(app_name=appname,
+                        app_version=version,
+                        enabled=True)
+        pkg_info_file = os.path.join(pkg_prefix, 'bpt_meta', 'pkg_info')
+        store_info(pkg_info_file, pkg_info)
+
         # XXX(ot): disable other versions
         # XXX(ot): synchronize box
 

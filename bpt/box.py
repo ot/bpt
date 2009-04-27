@@ -10,14 +10,21 @@ Box class implementation
 #*****************************************************************************
 
 import os
+import shutil
 from uuid import uuid1
 from tempfile import mktemp # for doctests
 
 import bpt
 from bpt import log, UserError
 from bpt.util import store_info, load_info, get_arch
+from bpt.linkdir import linkdir
+from bpt.package import Package
 
+# Directories created inside the box
 STANDARD_DIRS = ['pkgs', 'bpt_meta', 'bin', 'lib', 'man', 'share', 'include']
+
+# Directories whose contents are linked from every package to the box
+DYN_DIRS = ['bin', 'lib', 'man', 'share', 'include']
 
 STANDARD_PATH_VARS = [('PATH', 'bin'), 
                       ('LIBRARY_PATH', 'lib'), 
@@ -126,13 +133,58 @@ class Box(object):
     
     def sync(self):
         # XXX(ot): implement linking of packages
+        self._clean()
+        for package in self.packages(only_enabled=True):
+            self.relink_package(package)
         self._create_env_script()
+
+    def packages(self, only_enabled=False):
+        pkgs_dir = os.path.join(self.path, 'pkgs')
+        for pkgdir in os.listdir(os.path.join(self.path, 'pkgs')):
+            try:
+                pkg = Package(os.path.join(pkgs_dir, pkgdir))
+            except UserError:
+                log.warning('Invalid entry in pkgs: %s', pkgdir)
+            else:
+                if not only_enabled or pkg.enabled:
+                    yield pkg
+
+    def relink_package(self, package):
+        log.info('Relinking package %s' % package.name)
+
+        for d in DYN_DIRS:
+            src_path = os.path.abspath(os.path.join(package.path, d))
+            dest_path = os.path.abspath(os.path.join(self.path, d))
+            linkdir(src_path, dest_path)
+
+
+    def _clean(self):
+        '''Erase all the symlinks in DYN_DIR'''
+        log.info('Cleaning box')
+
+        for d in DYN_DIRS:
+            d_path = os.path.join(self.path, d)
+            shutil.rmtree(d_path)
+            os.makedirs(d_path)
+        
 
     def _create_env_script(self):
         virtual_path = self.virtual_path
         path_updates = '\n'.join('export %s="$VIRTUAL_PATH/%s${%s:+:$%s}"' % (v, d, v, v) 
                                  for v, d in STANDARD_PATH_VARS)
-        pkg_env_scripts = '' # XXX 
+
+        # Collect package env scripts
+        pkg_env_scripts = []
+        for pkg in self.packages(only_enabled=True):
+            local_env_script = os.path.join(pkg.path, 'bpt_meta', 'env_script')
+            if os.path.exists(local_env_script):
+                f = open(local_env_script)
+                try:
+                    pkg_env_scripts.append(f.read())
+                finally:
+                    f.close()
+
+        pkg_env_scripts = '\n'.join(pkg_env_scripts)
         
         env_script = open(ENV_SCRIPT_TMPL).read() % locals() # XXX(ot) close file?
         
@@ -146,6 +198,7 @@ class Box(object):
         os.chmod(env_script_path, 0755)
 
         log.info('Created env script')
+
 
 def require_box(config):
     '''Raise an exception if config.box is None'''

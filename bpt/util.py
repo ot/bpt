@@ -57,28 +57,35 @@ def get_arch():
     return (u[0], u[4])
 
 def path_diff(start, path):
-    '''\
-    Returns the relative path of a path from directory start,
-    and backwards
-    XXX: Not sure this is robust or portable
-    >>> path_diff('/a/', '/a/b/c')
+    '''Returns the relative path of a path from directory start, and
+    the relative path to go back. Similar to Python 2.6 relpath, works
+    only on POSIX.
+
+    XXX(ot): Not sure this is robust or portable
+
+    >>> path_diff('/a/', '/a/b/c') 
     ('b/c', '../..')
     
-    >>> path_diff('a', '/a/b/c')
+    >>> path_diff('a', 'a/b/c')
     ('b/c', '../..')
+
+    >>> path_diff('a/x/y', 'a/b/c')
+    ('../../b/c', '../../x/y')
     '''
-    start_list = filter(None, start.split(os.path.sep))
+    start = os.path.abspath(start)
+    path = os.path.abspath(path)
+    start_list = filter(None, start.split(os.path.sep)) # XXX(ot): is filter needed?
     path_list = filter(None, path.split(os.path.sep))
-    i = len(start_list)
+    
+    prefix_list = os.path.commonprefix((start_list, path_list))
+    r = len(prefix_list)
+    s = len(start_list)
     p = len(path_list)
-    
-    if start_list != path_list[:i]:
-        raise Exception('path is not a subpath of start')
-    
-    if p == i:
-        return '', ''
-    else:
-        return os.path.join(*(path_list[i:])), os.path.join(*((os.path.pardir,)*(p-i)))
+
+    s2p = os.path.sep.join([os.path.pardir]*(s-r) + path_list[r:])
+    p2s = os.path.sep.join([os.path.pardir]*(p-r) + start_list[r:])
+
+    return s2p, p2s
 
 # XXX transitional, replace commands.getstatusoutput
 def getstatusoutput(command):

@@ -35,7 +35,7 @@ class sync(Command):
     usage_args = ''
 
     def _run(self, config, cmd_options, cmd_args):
-	if len(args) != 0:
+	if len(cmd_args) != 0:
 	    self.parser.print_help()
 	    return 1
 
