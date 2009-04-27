@@ -67,6 +67,8 @@ def main(argv):
             config.box = Box(options.box_path)
         else:
             config.box = get_current_box()
+            if config.box is not None:
+                log.info('Using current box "%s"', config.box.name)
 
         return ui.command.dispatch(command, config, cmd_args)
     except ui.command.CommandNotFound:

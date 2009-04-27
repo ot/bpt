@@ -132,11 +132,21 @@ class Box(object):
         return box
     
     def sync(self):
-        # XXX(ot): implement linking of packages
-        self._clean()
+        '''Recreate all the symlinks and the env script, restoring the
+        consistency of the box.'''
+
+        # Clean all symlinks
+        for d in DYN_DIRS:
+            d_path = os.path.join(self.path, d)
+            shutil.rmtree(d_path)
+            os.makedirs(d_path)
+
+        # Relink all packages    
         for package in self.packages(only_enabled=True):
-            self.relink_package(package)
+            self._relink_package(package)
+
         self._create_env_script()
+        log.info('Synchronized box')
 
     def packages(self, only_enabled=False):
         pkgs_dir = os.path.join(self.path, 'pkgs')
@@ -149,24 +159,13 @@ class Box(object):
                 if not only_enabled or pkg.enabled:
                     yield pkg
 
-    def relink_package(self, package):
+    def _relink_package(self, package):
         log.info('Relinking package %s' % package.name)
 
         for d in DYN_DIRS:
             src_path = os.path.abspath(os.path.join(package.path, d))
             dest_path = os.path.abspath(os.path.join(self.path, d))
             linkdir(src_path, dest_path)
-
-
-    def _clean(self):
-        '''Erase all the symlinks in DYN_DIR'''
-        log.info('Cleaning box')
-
-        for d in DYN_DIRS:
-            d_path = os.path.join(self.path, d)
-            shutil.rmtree(d_path)
-            os.makedirs(d_path)
-        
 
     def _create_env_script(self):
         virtual_path = self.virtual_path

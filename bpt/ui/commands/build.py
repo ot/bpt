@@ -17,7 +17,7 @@ from bpt.box import Box, require_box
 from bpt.build import SourceDir
 
 class build(Command):
-    doc = 'Build a package inside the sandbox'
+    doc = 'Build a package inside the box'
 
     name = 'build'
     usage_args = '<source package> ...'
