@@ -10,6 +10,7 @@ Box class implementation
 #*****************************************************************************
 
 import os
+import re
 import shutil
 from uuid import uuid1
 from tempfile import mktemp # for doctests
@@ -148,7 +149,14 @@ class Box(object):
         self._create_env_script()
         log.info('Synchronized box')
 
-    def packages(self, only_enabled=False):
+    def packages(self, only_enabled=False, matching=None):
+        '''Iterates on the installed packages. If only_enabled is
+        True, only enabled packages are returned. matching can be a
+        list of regexps, if it is given a package is returned only if
+        it matches at least one regexp
+        '''
+        if matching is not None:
+            regexps = [re.compile(pattern) for pattern in matching]
         pkgs_dir = os.path.join(self.path, 'pkgs')
         for pkgdir in os.listdir(os.path.join(self.path, 'pkgs')):
             try:
@@ -157,7 +165,14 @@ class Box(object):
                 log.warning('Invalid entry in pkgs: %s', pkgdir)
             else:
                 if not only_enabled or pkg.enabled:
-                    yield pkg
+                    if matching is None:
+                        yield pkg
+                    else:
+                        for regexp in regexps:
+                            if regexp.match(pkg.name):
+                                yield pkg
+                                break
+                            
 
     def _relink_package(self, package):
         log.info('Relinking package %s' % package.name)

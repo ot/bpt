@@ -65,3 +65,34 @@ class shell(Command):
             # XXX(ot): does this spawn two bashs?
             env_script = os.path.join(config.box.path, 'env')
             call(['bash', env_script, 'PS1="%s"' % shell_prompt, 'bash', '-norc', '-noprofile'])
+
+class status(Command):
+    doc = 'Show the installed packages. Packages can be narrowed down using a regex'
+
+    name = 'status'
+    usage_args = '[pattern1 pattern2 ...]'
+
+    def _run(self, config, cmd_options, cmd_args):
+	require_box(config)
+        
+        fmt = '%-30s| %-20s| %-10s| %-10s|'
+
+        print
+        print fmt % ('PACKAGE', 'NAME', 'VERSION', 'STATUS')
+        print 
+
+        if len(cmd_args) == 0:
+            patterns = None
+        else:
+            patterns = cmd_args 
+
+        for package in config.box.packages(matching=patterns):
+            if package.enabled:
+                pkg_status = 'enabled'
+            else:
+                pkg_status = 'disabled'
+            print fmt % (package.name,
+                         package.app_name,
+                         package.app_version,
+                         pkg_status)
+        print
