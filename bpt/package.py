@@ -62,9 +62,6 @@ class Package(object):
             return object.__getattr__(self, attr)
 
         try:
-            # XXX(ot): _dict can get out of date if another Package
-            # object on the same path is created and modified. Think
-            # of a solution.
             return self._dict[attr]
         except KeyError, e:
             raise AttributeError(e.message)
