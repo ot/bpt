@@ -22,27 +22,27 @@ class build(Command):
     usage_args = '<source package> ...'
 
     def __init__(self):
-	options = [make_option('-c', '--clean-before', action='store_true',
-			       dest='clean_before',
-			       help='Clean sourcedir before building it.'),
+        options = [make_option('-c', '--clean-before', action='store_true',
+                               dest='clean_before',
+                               help='Clean sourcedir before building it.'),
                    make_option('-s', '--suffix', action='store',
-			       dest='suffix',
+                               dest='suffix',
                                default='',
-			       help='Append a suffix to the package name.')
-		   ]
-	Command.__init__(self, options)
-	
+                               help='Append a suffix to the package name.')
+                   ]
+        Command.__init__(self, options)
+        
 
     def _run(self, config, cmd_options, cmd_args):
-	if not cmd_args:
-	    self.parser.print_help()
-	    return 1
+        if not cmd_args:
+            self.parser.print_help()
+            return 1
 
         require_box(config)
 
-	for sourcedir in cmd_args:
+        for sourcedir in cmd_args:
             sd = SourceDir(sourcedir)
-	    if cmd_options.clean_before:
+            if cmd_options.clean_before:
                 sd.clean()
             sd.build(config.box, cmd_options.suffix)
 
@@ -52,18 +52,18 @@ class clean(Command):
     usage_args = '<source package> ...'
 
     def __init__(self):
-	options = [make_option('-d', '--deep', action='store_true',
-			       dest='deep',
-			       help='Deep clean: erase also downloaded files, etc...')
-		   ]
-	Command.__init__(self, options)
+        options = [make_option('-d', '--deep', action='store_true',
+                               dest='deep',
+                               help='Deep clean: erase also downloaded files, etc...')
+                   ]
+        Command.__init__(self, options)
 
     def _run(self, config, cmd_options, cmd_args):
-	if not cmd_args:
-	    self.parser.print_help()
-	    return 1
+        if not cmd_args:
+            self.parser.print_help()
+            return 1
 
-	for sourcedir in cmd_args:
+        for sourcedir in cmd_args:
             sd = SourceDir(sourcedir, config.deep)
             sd.clean()
 
@@ -73,10 +73,10 @@ class unittest(Command):
     usage_args = '<source package> ...'
 
     def _run(self, config, cmd_options, cmd_args):
-	if not cmd_args:
-	    self.parser.print_help()
-	    return 1
+        if not cmd_args:
+            self.parser.print_help()
+            return 1
 
-	for sourcedir in cmd_args:
+        for sourcedir in cmd_args:
             sd = SourceDir(sourcedir)
             sd.unittest()

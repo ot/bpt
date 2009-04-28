@@ -22,12 +22,12 @@ class create(Command):
     usage_args = '<box path>'
 
     def _run(self, config, cmd_options, cmd_args):
-	if len(cmd_args) != 1:
-	    self.parser.print_help()
-	    return 1
+        if len(cmd_args) != 1:
+            self.parser.print_help()
+            return 1
 
         box_path = cmd_args[0]
-	Box.create(box_path)
+        Box.create(box_path)
 
 class sync(Command):
     '''Synchronize a package box'''
@@ -35,9 +35,9 @@ class sync(Command):
     usage_args = ''
 
     def _run(self, config, cmd_options, cmd_args):
-	if len(cmd_args) != 0:
-	    self.parser.print_help()
-	    return 1
+        if len(cmd_args) != 0:
+            self.parser.print_help()
+            return 1
 
         require_box(config)
         config.box.sync()
@@ -48,9 +48,9 @@ class shell(Command):
     usage_args = ''
 
     def _run(self, config, cmd_options, cmd_args):
-	require_box(config)
+        require_box(config)
 
-	box_name = '(%s)' % config.box.name
+        box_name = '(%s)' % config.box.name
         shell_prompt = r'\[\033[01;31m\]%(box_name)s\[\033[01;32m\] \u@\h\[\033[01;34m\] \w \$\[\033[00m\] ' % locals()
 
         cur_box = get_current_box()
@@ -71,7 +71,7 @@ class status(Command):
     usage_args = '[pattern1 pattern2 ...]'
 
     def _run(self, config, cmd_options, cmd_args):
-	require_box(config)
+        require_box(config)
         
         fmt = '%-30s| %-20s| %-10s| %-10s|'
 
@@ -101,17 +101,17 @@ class disable(Command):
     usage_args = '[pattern1 pattern2 ...]'
 
     def __init__(self):
-	options = [make_option('-r', '--remove', action='store_true',
-			       dest='remove',
-			       help='Remove the packages after disabling them.')
-		   ]
-	Command.__init__(self, options)
-	
+        options = [make_option('-r', '--remove', action='store_true',
+                               dest='remove',
+                               help='Remove the packages after disabling them.')
+                   ]
+        Command.__init__(self, options)
+        
 
     def _run(self, config, cmd_options, cmd_args):
-	if not cmd_args:
-	    self.parser.print_help()
-	    return 1
+        if not cmd_args:
+            self.parser.print_help()
+            return 1
 
         require_box(config)
 
@@ -126,9 +126,9 @@ class enable(Command):
     usage_args = '[pattern1 pattern2 ...]'
 
     def _run(self, config, cmd_options, cmd_args):
-	if not cmd_args:
-	    self.parser.print_help()
-	    return 1
+        if not cmd_args:
+            self.parser.print_help()
+            return 1
 
         require_box(config)
 

@@ -37,7 +37,7 @@ class SourceDir(object):
 
         outtext = outtext.strip()
         if outtext == '' and not can_be_empty:
-            raise Exception('No variable %s' % variable)
+            raise Exception('No variable %s' % var)
 
         return outtext
 

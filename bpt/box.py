@@ -48,7 +48,6 @@ class Box(object):
     '''
 
     def __init__(self, box_path):
-        # XXX(ot): check that the path is indeed a box
         self._path = box_path
 
         try:

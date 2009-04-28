@@ -41,7 +41,7 @@ def setup_optparse():
                       help='informations about available commands')
     parser.add_option('-b', '--box', action='store',
                       type='string', dest='box_path',
-		      help='box path. If not specified, use the current one.')
+                      help='box path. If not specified, use the current one.')
 
     return parser
     
@@ -55,8 +55,8 @@ def main(argv):
     options, args = parser.parse_args(argv[1:])
     
     if not args:
-	parser.print_help()
-	return 255
+        parser.print_help()
+        return 255
 
     command = args[0]
     cmd_args = args[1:]
@@ -73,8 +73,8 @@ def main(argv):
         return ui.command.dispatch(command, config, cmd_args)
     except ui.command.CommandNotFound:
         log.error("Command %s not found", command)
-	parser.print_help()
-	return 255
+        parser.print_help()
+        return 255
     except bpt.UserError, exc:
         log.error('Aborting: %s', exc.message)
         return 1

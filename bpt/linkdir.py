@@ -11,6 +11,7 @@ Utility functions to link (and unlink) recursively directories
 
 import os
 
+from bpt import log
 from bpt.util import path_diff
 
 def linkdir(src_path, dst_path):
@@ -30,11 +31,11 @@ def linkdir(src_path, dst_path):
             spath = os.path.join(rel_parents, rel_src_path, rel_path, f)
             dpath = os.path.join(dst_path, rel_path, f)
             if os.path.lexists(dpath):
-		if os.path.islink(dpath):
-		    os.unlink(dpath)
-		else:
-		    log.warn('Existing file (not a symlink): %s' % dpath)
-		    continue
+                if os.path.islink(dpath):
+                    os.unlink(dpath)
+                else:
+                    log.warn('Existing file (not a symlink): %s' % dpath)
+                    continue
             
             os.symlink(spath, dpath)
 
