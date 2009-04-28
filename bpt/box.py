@@ -62,6 +62,17 @@ class Box(object):
             self._platform = box_info['platform']
         except KeyError, exc:
             raise UserError('Invalid box_info: missing "%s"', exc.message)
+        
+        # Ensure that the virtual path symlink is existing and points
+        # to the correct location
+        try:
+            os.symlink(self.path, self.virtual_path)
+        except OSError, exc:
+            if exc.errno == 17 and \
+                    not os.path.samefile(self.path, self.virtual_path):
+                raise UserError('Virtual path symlink %s exists but ' 
+                                'does not point to this box. Please remove '
+                                'it manually', self.virtual_path)
 
     def __repr__(self):
         return "Box('%s')" % self.path
@@ -150,7 +161,7 @@ class Box(object):
         log.info('Synchronized box')
 
     def get_package(self, pkgname):
-        pkgs_dir = os.path.join(self.path, 'pkgs')
+        pkgs_dir = os.path.join(self.virtual_path, 'pkgs')
         return Package(os.path.join(pkgs_dir, pkgname))
 
     def packages(self, only_enabled=False, matching=None):
@@ -161,7 +172,7 @@ class Box(object):
         '''
         if matching is not None:
             regexps = [re.compile(pattern + '$', re.IGNORECASE) for pattern in matching]
-        for pkgname in os.listdir(os.path.join(self.path, 'pkgs')):
+        for pkgname in os.listdir(os.path.join(self.virtual_path, 'pkgs')):
             try:
                 pkg = self.get_package(pkgname)
             except UserError:
@@ -177,15 +188,6 @@ class Box(object):
                             break
                             
     def create_package(self, pkg_name, **pkg_info):
-
-        # Execute the env script. This guarantees that the virtual
-        # path symlink is created
-        # XXX(ot): could this cause a performance penalty?
-        try:
-            call([os.path.join(self.path, 'env')])
-        except OSError:
-            raise UserError('Impossible to execute the env script. Sync the sandbox to recreate it')
-
         pkg_prefix = os.path.join(self.virtual_path, 'pkgs', pkg_name)
 
         # This creates also the directory pkg_prefix

@@ -19,6 +19,19 @@ class Package(object):
     <box>/pkgs. The attributes are kept in sync with the stored
     pkg_info'''
 
+    _PackagePool = dict()
+
+    def __new__(cls, pkgdir):
+        # Ensure that there is only one instance of Package for every
+        # directory, so that no other instance can change pkg_info
+        # contents, invalidating our _dict 
+
+        # XXX(ot): This keeps all the packages in memory. Use a
+        # weakrefdict instead?
+
+        return Package._PackagePool.setdefault(pkgdir, object.__new__(cls))
+        
+
     def __init__(self, pkgdir):
         # XXX(ot): better exceptions? metadata version handling?
 

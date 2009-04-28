@@ -42,7 +42,9 @@ def test_packages():
     bar = box.create_package('bar-0.2', app_name='bar', app_version='0.2', enabled=False)
     
     assert len(list(box.packages())) == 2
-    assert len(list(box.packages(only_enabled=True))) == 1
+    l = list(box.packages(only_enabled=True))
+    assert len(l) == 1
+    assert l[0] is foo
     
     box.disable_package(foo)
     assert len(list(box.packages(only_enabled=True))) == 0
