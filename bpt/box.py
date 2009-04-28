@@ -14,6 +14,7 @@ import re
 import shutil
 from uuid import uuid1
 from tempfile import mktemp # for doctests
+from subprocess import call
 
 import bpt
 from bpt import log, UserError
@@ -102,7 +103,7 @@ class Box(object):
     @classmethod
     def create(cls, dest_path):
         '''Creates a directory dest_path and initialize a package box
-        in it.  Returns the initialized box
+        in it.  Returns the initialized box.
 
         >>> box_path = mktemp()
         >>> box = Box.create(box_path)
@@ -177,6 +178,15 @@ class Box(object):
                             break
                             
     def create_package(self, pkg_name, **pkg_info):
+
+        # Execute the env script. This guarantees that the virtual
+        # path symlink is created
+        # XXX(ot): could this cause a performance penalty?
+        try:
+            call([os.path.join(self.path, 'env')])
+        except OSError:
+            raise UserError('Impossible to execute the env script. Sync the sandbox to recreate it')
+
         pkg_prefix = os.path.join(self.virtual_path, 'pkgs', pkg_name)
 
         # This creates also the directory pkg_prefix
