@@ -33,6 +33,12 @@ class Package(object):
 
     @classmethod
     def create(cls, pkgdir, **kwArgs):
+        try:
+            os.makedirs(os.path.join(pkgdir, 'bpt_meta'))
+        except OSError, exc:
+            if exc.errno != 17: # directory exists
+                raise
+
         store_info(_pkg_info_file(pkgdir), kwArgs)
         return cls(pkgdir)
         

@@ -48,6 +48,12 @@ class SourceDir(object):
         pkgname = '%s-%s%s' % (appname, version, name_suffix)
         pkg_prefix = os.path.join(box.virtual_path, 'pkgs', pkgname)
 
+        # This creates also the directory
+        pkg = Package.create(pkgdir=pkg_prefix,
+                             app_name=appname,
+                             app_version=version,
+                             enabled=False)
+
         # XXX(ot): check last box built
         
         if not box.check_platform():
@@ -57,18 +63,12 @@ class SourceDir(object):
 
         # Build
         sh_line = ('cd %s;' % self._sourcedir
-                   + 'mkdir -p "%s"/bpt_meta;' % pkg_prefix # create the prefix and its 'bpt_meta' subdir
-                   + 'export BPT_PKG_PREFIX="%s";' % pkg_prefix
+                   + 'export BPT_PKG_PREFIX="%s";' % pkg.path
                    + 'source bpt-rules;'
                    + 'build;'
                    )
         retcode = call(['bash', '-e', '%s/env' % box.path, sh_line])
         assert retcode == 0, 'FATAL: build script exited with status %s' % retcode
-
-        pkg = Package.create(pkgdir=pkg_prefix,
-                             app_name=appname,
-                             app_version=version,
-                             enabled=False)
 
         box.enable_package(pkg)
         
