@@ -34,10 +34,7 @@ class build(Command):
         
 
     def _run(self, config, cmd_options, cmd_args):
-        if not cmd_args:
-            self.parser.print_help()
-            return 1
-
+        self._require_args(cmd_args, 1)
         require_box(config)
 
         for sourcedir in cmd_args:
@@ -59,9 +56,7 @@ class clean(Command):
         Command.__init__(self, options)
 
     def _run(self, config, cmd_options, cmd_args):
-        if not cmd_args:
-            self.parser.print_help()
-            return 1
+        self._require_args(cmd_args, 1)
 
         for sourcedir in cmd_args:
             sd = SourceDir(sourcedir, config.deep)
@@ -73,9 +68,7 @@ class unittest(Command):
     usage_args = '<source package> ...'
 
     def _run(self, config, cmd_options, cmd_args):
-        if not cmd_args:
-            self.parser.print_help()
-            return 1
+        self._require_args(cmd_args, 1)
 
         for sourcedir in cmd_args:
             sd = SourceDir(sourcedir)

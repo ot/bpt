@@ -22,9 +22,7 @@ class create(Command):
     usage_args = '<box path>'
 
     def _run(self, config, cmd_options, cmd_args):
-        if len(cmd_args) != 1:
-            self.parser.print_help()
-            return 1
+        self._require_args(cmd_args, 1, 1)
 
         box_path = cmd_args[0]
         Box.create(box_path)
@@ -35,9 +33,7 @@ class sync(Command):
     usage_args = ''
 
     def _run(self, config, cmd_options, cmd_args):
-        if len(cmd_args) != 0:
-            self.parser.print_help()
-            return 1
+        self._require_args(cmd_args, 0, 0)
 
         require_box(config)
         config.box.sync()
@@ -48,6 +44,7 @@ class shell(Command):
     usage_args = ''
 
     def _run(self, config, cmd_options, cmd_args):
+        self._require_args(cmd_args, 0, 0)
         require_box(config)
 
         box_name = '(%s)' % config.box.name
@@ -109,10 +106,7 @@ class disable(Command):
         
 
     def _run(self, config, cmd_options, cmd_args):
-        if not cmd_args:
-            self.parser.print_help()
-            return 1
-
+        self._require_args(cmd_args, 1)
         require_box(config)
 
         patterns = cmd_args
@@ -126,10 +120,7 @@ class enable(Command):
     usage_args = '[pattern1 pattern2 ...]'
 
     def _run(self, config, cmd_options, cmd_args):
-        if not cmd_args:
-            self.parser.print_help()
-            return 1
-
+        self._require_args(cmd_args, 1)
         require_box(config)
 
         patterns = cmd_args
