@@ -176,6 +176,15 @@ class Box(object):
                             yield pkg
                             break
                             
+    def create_package(self, pkg_name, **pkg_info):
+        pkg_prefix = os.path.join(self.virtual_path, 'pkgs', pkg_name)
+
+        # This creates also the directory pkg_prefix
+        pkg = Package.create(pkgdir=pkg_prefix,
+                             **pkg_info)
+        return pkg
+
+
     def enable_package(self, package):
         # XXX(ot): disable other versions
         log.info('Enabling package %s', package)

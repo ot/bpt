@@ -45,15 +45,11 @@ class SourceDir(object):
         appname = self.get_var('BPT_APP_NAME')
         version = self.get_var('BPT_APP_VERSION')
 
-        pkgname = '%s-%s%s' % (appname, version, name_suffix)
-        pkg_prefix = os.path.join(box.virtual_path, 'pkgs', pkgname)
-
-        # This creates also the directory
-        pkg = Package.create(pkgdir=pkg_prefix,
-                             app_name=appname,
-                             app_version=version,
-                             enabled=False)
-
+        pkg_name = '%s-%s%s' % (appname, version, name_suffix)
+        pkg = box.create_package(pkg_name,
+                                 app_name=appname,
+                                 app_version=version,
+                                 enabled=False)
         # XXX(ot): check last box built
         
         if not box.check_platform():
