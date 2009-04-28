@@ -54,7 +54,7 @@ class Box(object):
             box_info = load_info(os.path.join(self.path, 
                                               'bpt_meta', 
                                               'box_info'))
-        except OSError:
+        except (OSError, IOError):
             raise UserError('Invalid box: impossible to read box_info')
 
         try:

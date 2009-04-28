@@ -45,16 +45,26 @@ class SourceDir(object):
         appname = self.get_var('BPT_APP_NAME')
         version = self.get_var('BPT_APP_VERSION')
 
+        # Check last box the sourcedir was built in
+        bpt_status_file = os.path.join(self.path, '.bpt_status')
+        if os.path.exists(bpt_status_file):
+            bpt_status = load_info(bpt_status_file)
+            last_box_id = bpt_status.get('last_box_id', box.box_id)
+            if last_box_id != box.box_id: 
+                log.info('Intermediate files built for another package box. Cleaning first.')
+                self.clean()
+
+        # Write the current box_id
+        store_info(bpt_status_file, dict(last_box_id=box.box_id))
+        
+        if not box.check_platform():
+            raise UserError('Current platform is different from box\'s platform')
+
         pkg_name = '%s-%s%s' % (appname, version, name_suffix)
         pkg = box.create_package(pkg_name,
                                  app_name=appname,
                                  app_version=version,
                                  enabled=False)
-        # XXX(ot): check last box built
-        
-        if not box.check_platform():
-            raise UserError('Current platform is different from box\'s platform')
-
         log.info('Building application %s, in sourcedir %s', appname, self._sourcedir)
 
         # Build
@@ -70,7 +80,8 @@ class SourceDir(object):
         
     def clean(self, deep=False):
         log.info('Cleaning sourcedir %s', self.path)
-        sh_line = ('cd %s;' % self.path
+        sh_line = ('cd %s;' % self.path 
+                   + 'rm -f .bpt_status;'
                    + 'source bpt-rules;'
                    + 'clean;'
                    )
