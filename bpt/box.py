@@ -197,7 +197,12 @@ class Box(object):
 
 
     def enable_package(self, package):
-        # XXX(ot): disable other versions
+
+        # Disable other versions of the same application
+        for other in self.packages(only_enabled=True):
+            if other is not package and other.app_name == package.app_name:
+                self.disable_package(other)
+
         log.info('Enabling package %s', package)
         package.enabled = True
         self._link_package(package)

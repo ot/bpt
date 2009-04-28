@@ -24,8 +24,9 @@ class Package(object):
     def __new__(cls, pkgdir):
         # Ensure that there is only one instance of Package for every
         # directory, so that no other instance can change pkg_info
-        # contents, invalidating our _dict 
+        # contents, invalidating our _dict. 
 
+        # XXX(ot): This is obviously not thread safe
         # XXX(ot): This keeps all the packages in memory. Use a
         # weakrefdict instead?
 
