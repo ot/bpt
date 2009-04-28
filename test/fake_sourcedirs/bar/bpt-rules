@@ -1,0 +1,30 @@
+#!/bin/bash
+
+BPT_APP_NAME=bar
+BPT_APP_VERSION='0.2'
+
+build() {
+    mkdir -p "$BPT_PKG_PREFIX"/lib/d/
+    echo bar > "$BPT_PKG_PREFIX"/lib/d/bar
+    mkdir -p "$BPT_PKG_PREFIX"/bin
+    echo bar1 > "$BPT_PKG_PREFIX"/bin/bar1
+
+    # check that we have no files left from builds in other boxes
+    if [ -e intermediate ]
+    then 
+        cmp intermediate <(echo "$BPT_PKG_PREFIX") 
+    fi 
+    echo "$BPT_PKG_PREFIX/" > intermediate
+}
+
+unittest() {
+    false
+}
+
+clean() {
+    rm -f intermediate
+}
+
+deepclean() {
+    true
+}

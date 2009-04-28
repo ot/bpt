@@ -77,6 +77,7 @@ class SourceDir(object):
         assert retcode == 0, 'FATAL: build script exited with status %s' % retcode
 
         box.enable_package(pkg)
+        return pkg
         
     def clean(self, deep=False):
         log.info('Cleaning sourcedir %s', self.path)
@@ -99,5 +100,7 @@ class SourceDir(object):
         exitstatus = call(['bash', '-e', '-c', sh_line])
         if exitstatus != 0:
             log.warning('unittest exited with exit code %s. Some tests may have failed', exitstatus)
+            return False
+        return True
         
     

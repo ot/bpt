@@ -1,0 +1,23 @@
+#!/bin/bash 
+
+BPT_APP_NAME=foo
+BPT_APP_VERSION='0.1'
+
+build() {
+    mkdir -p $BPT_PKG_PREFIX/lib/d/
+    echo foo > $BPT_PKG_PREFIX/lib/d/foo
+    mkdir -p $BPT_PKG_PREFIX/bin
+    echo foo1 > $BPT_PKG_PREFIX/bin/foo1
+}
+
+unittest() {
+    true
+}
+
+clean() {
+    true
+}
+
+deepclean() {
+    true
+}

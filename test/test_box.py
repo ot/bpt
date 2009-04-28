@@ -31,6 +31,7 @@ def rmbox():
 
 @with_setup(teardown=rmbox)
 def test_create():
+    assert_raises(UserError, Box, box1_path) # No box, should raise
     box = Box.create(box1_path)
     assert box.path == box1_path
     assert_raises(UserError, Box.create, box1_path)
