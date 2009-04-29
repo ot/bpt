@@ -48,7 +48,7 @@ class Box(object):
     '''
 
     def __init__(self, box_path):
-        self._path = box_path
+        self._path = os.path.abspath(box_path)
 
         try:
             box_info = load_info(os.path.join(self.path, 
