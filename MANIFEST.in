@@ -1,5 +1,6 @@
 include README
 include COPYING
 include bpt/env_script.tmpl
+include bpt/bpt_base_script.sh
 include test/fake_sourcedirs/bar/bpt-rules
 include test/fake_sourcedirs/foo/bpt-rules

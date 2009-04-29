@@ -16,6 +16,11 @@ from bpt import log, UserError
 from bpt.util import getstatusoutput, store_info, load_info
 from bpt.package import Package
 
+BASE_SH_SCRIPT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), 
+                 'bpt_base_script.sh')
+    )
+
 class SourceDir(object):
     def __init__(self, sourcedir):
         self._sourcedir = sourcedir
@@ -68,11 +73,12 @@ class SourceDir(object):
         log.info('Building application %s, in sourcedir %s', appname, self._sourcedir)
 
         # Build
-        sh_line = ('cd %s;' % self._sourcedir
+        sh_line = ('source "%s";' % BASE_SH_SCRIPT
+                   + 'cd "%s";' % self._sourcedir
                    + 'export BPT_PKG_PREFIX="%s";' % pkg.path
                    + 'source bpt-rules;'
-                   # XXX(ot): download
-                   + 'build;'
+                   + 'bpt_download;'
+                   + 'bpt_build;'
                    )
         retcode = call(['bash', '-e', box.env_script, sh_line])
         assert retcode == 0, 'FATAL: build script exited with status %s' % retcode
@@ -82,10 +88,11 @@ class SourceDir(object):
         
     def clean(self, deep=False):
         log.info('Cleaning sourcedir %s', self.path)
-        sh_line = ('cd %s;' % self.path 
+        sh_line = ('source "%s";' % BASE_SH_SCRIPT
+                   + 'cd "%s";' % self._sourcedir
                    + 'rm -f .bpt_status;'
                    + 'source bpt-rules;'
-                   + 'clean;'
+                   + 'bpt_clean;'
                    )
         if deep: 
             sh_line += 'deepclean;'
@@ -94,9 +101,10 @@ class SourceDir(object):
 
     def unittest(self):
         log.info('Testing sourcedir %s', self.path)
-        sh_line = ('cd %s;' % self.path
+        sh_line = ('source "%s";' % BASE_SH_SCRIPT
+                   + 'cd "%s";' % self._sourcedir
                    + 'source bpt-rules;'
-                   + 'unittest'
+                   + 'bpt_unittest;'
                    )
         exitstatus = call(['bash', '-e', '-c', sh_line])
         if exitstatus != 0:

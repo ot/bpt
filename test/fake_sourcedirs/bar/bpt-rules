@@ -3,7 +3,7 @@
 BPT_APP_NAME=bar
 BPT_APP_VERSION='0.2'
 
-build() {
+bpt_build() {
     mkdir -p "$BPT_PKG_PREFIX"/lib/d/
     echo bar > "$BPT_PKG_PREFIX"/lib/d/bar
     mkdir -p "$BPT_PKG_PREFIX"/bin
@@ -17,14 +17,11 @@ build() {
     echo "$BPT_PKG_PREFIX/" > intermediate
 }
 
-unittest() {
+bpt_unittest() {
     false
 }
 
-clean() {
+bpt_clean() {
     rm -f intermediate
 }
 
-deepclean() {
-    true
-}

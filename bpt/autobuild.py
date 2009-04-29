@@ -20,7 +20,7 @@ from bpt import log, UserError
 from bpt.box import Box
 from bpt.util import getstatusoutput
 
-SETUPTOOLS_WORKAROUND=True 
+SETUPTOOLS_WORKAROUND = True 
 
 class UnsupportedFile(Exception): pass
 
@@ -41,12 +41,12 @@ def guess_unpack_cmd(filename):
     if ext == '.gz':
         root, ext = os.path.splitext(root)
         if ext != '.tar':
-            raise UnsupportedExtension
+            raise UnsupportedFile('Unsupported extension')
         cmd = ['tar', 'zsxf']
     elif ext == '.bz2':
         root, ext = os.path.splitext(root)
         if ext != '.tar':
-            raise UnsupportedExtension
+            raise UnsupportedFile('Unsupported extension')
         cmd = ['tar', 'jsxf']
     elif ext == '.tar':
         cmd = ['tar', 'sxf']
@@ -84,7 +84,7 @@ def autobuild(box, filename, configure_options='', keep_temp=False):
         raise UserError('File %s does not exist' % filename)
     build_dir = mkdtemp()
     try:
-        basename, unpack_cmd =guess_unpack_cmd(filename)
+        basename, unpack_cmd = guess_unpack_cmd(filename)
         name, version = guess_name_version(basename)
 
         log.info('Guessed application name "%s", version "%s". Unpacking the file...', name, version)

@@ -24,7 +24,7 @@ if __name__ == '__main__':
                     'bpt.ui',
                     'bpt.ui.commands'
                     ],
-	  package_data={'bpt':['env_script.tmpl']},
+	  package_data={'bpt':['env_script.tmpl', 'bpt_base_script.sh']},
           scripts=['box'],
           classifiers=['Development Status :: 4 - Beta',
                        'Environment :: Console',
