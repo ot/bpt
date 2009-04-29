@@ -45,11 +45,12 @@ def setup_optparse():
 
     return parser
     
-def main(argv):
+def main(argv, do_log=True):
     # set up default logging 
     # TODO(giuott): Add a verbosity option
-    logging.basicConfig()
-    log.setLevel(logging.INFO)
+    if do_log:
+        logging.basicConfig()
+        log.setLevel(logging.INFO)
     
     parser = setup_optparse()
     options, args = parser.parse_args(argv[1:])
