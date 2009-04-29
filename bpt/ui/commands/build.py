@@ -59,11 +59,11 @@ class clean(Command):
         self._require_args(cmd_args, 1)
 
         for sourcedir in cmd_args:
-            sd = SourceDir(sourcedir, config.deep)
-            sd.clean()
+            sd = SourceDir(sourcedir)
+            sd.clean(cmd_options.deep)
 
 class unittest(Command):
-    '''Run unit tests inside a set of sourcedirs'''
+    '''Run unit tests inside a set of sourcedirs. Should be invoked only after a build command.'''
 
     usage_args = '<source package> ...'
 

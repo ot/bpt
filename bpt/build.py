@@ -78,6 +78,7 @@ class SourceDir(object):
                    + 'export BPT_PKG_PREFIX="%s";' % pkg.path
                    + 'source bpt-rules;'
                    + 'bpt_download;'
+                   + 'bpt_unpack;'
                    + 'bpt_build;'
                    )
         retcode = call(['bash', '-e', box.env_script, sh_line])
@@ -95,7 +96,7 @@ class SourceDir(object):
                    + 'bpt_clean;'
                    )
         if deep: 
-            sh_line += 'deepclean;'
+            sh_line += 'bpt_deepclean;'
         exitstatus, outtext = getstatusoutput("bash -e -c '%s'" % sh_line)
         assert exitstatus == 0, (exitstatus, outtext)
 

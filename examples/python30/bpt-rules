@@ -1,0 +1,41 @@
+#!/bin/bash 
+
+BPT_APP_NAME=python30
+BPT_APP_VERSION=3.0.1
+
+TARBALL=Python-3.0.1.tar.bz2
+SRCDIR=Python-3.0.1
+MD5SUM=7291eac6a9a7a3642e309c78b8d744e5
+
+bpt_download() {
+    bpt_get "http://www.python.org/ftp/python/3.0.1/" "$TARBALL" "$MD5SUM"
+}
+
+bpt_unpack() {
+    tar jxf "$TARBALL"
+}
+
+bpt_build() {
+    pushd $SRCDIR
+
+    ./configure --prefix="$BPT_PKG_PREFIX" --enable-shared 
+    make 
+    make sharedinstall
+    make install
+    popd
+}
+
+bpt_unittest() {
+    pushd $SRCDIR
+    make test
+    popd
+}
+
+bpt_clean() {
+    rm -fr "$SRCDIR"
+}
+
+bpt_deepclean() {
+    rm -f "$TARBALL"
+}
+
