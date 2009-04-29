@@ -2,5 +2,6 @@
 
 from bpt.ui.commands import \
     basic_commands, \
-    build
+    build, \
+    autobuild
 

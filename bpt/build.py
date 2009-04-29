@@ -71,6 +71,7 @@ class SourceDir(object):
         sh_line = ('cd %s;' % self._sourcedir
                    + 'export BPT_PKG_PREFIX="%s";' % pkg.path
                    + 'source bpt-rules;'
+                   # XXX(ot): download
                    + 'build;'
                    )
         retcode = call(['bash', '-e', '%s/env' % box.path, sh_line])
