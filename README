@@ -1,0 +1,193 @@
+==========================
+ Boxed Package Tool (BPT)
+==========================
+
+* `Mercurial repository <http://bitbucket.org/ot/bpt/>`_
+* `Issue tracker <http://bitbucket.org/ot/bpt/issues/>`_
+
+What is BPT
+===========
+
+BPT is a Python library (``bpt``) and a command line application
+(``box``) to create and manage isolated enviroments, or *boxes*. Boxes
+are *relocatable*, which means that they can be moved to a different
+directory or even distributed to other machines (provided that the
+architecture is compatible). Packages inside the box can be easily
+disabled, enabled and removed, so that different versions of the same
+software can be installed simultaneously, allowing to switch between
+them.
+
+BPT is similar in some ways to `virtualenv
+<http://pypi.python.org/pypi/virtualenv>`_, but it is not restricted
+to Python packages, allowing to install virtually any Unix
+software. It also takes some ideas from `jhbuild
+<http://live.gnome.org/Jhbuild>`_, but without the dependency
+resolution and automatic downloading machinery, and the ``bpt-rules``
+format is inspired by `Gentoo <http://www.gentoo.org/>`_'s ebuilds.
+
+How to use it
+=============
+
+A *box* is a directory whose structure resembles ``/usr/``, that can
+contain one or more software *packages*. Each package is contained in
+a subdirectory of the ``pkgs`` directory in the box. A box contains a
+script, ``env``, which sets up the environment, putting all the
+libraries, executables, etc. in the path.
+
+The command to create a box is::
+
+    $ bpt/box create my_first_box
+
+(We assume that the source distribution of BPT is in the directory ``bpt``) 
+
+This creates the basic structure::
+
+    $ find my_first_box
+    my_first_box
+    my_first_box/bin
+    my_first_box/bpt_meta
+    my_first_box/bpt_meta/box_info
+    my_first_box/env
+    my_first_box/include
+    my_first_box/lib
+    my_first_box/man
+    my_first_box/pkgs
+    my_first_box/share
+
+To execute a command within the box environment, use the ``env`` script::
+
+   $ my_first_box/env 'echo $PATH'
+   /tmp/box_87a482cc-34fc-11de-865a-001ec21bf2c7/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/X11/bin:/usr/local/bin
+
+Even if it may not seem obvious at first, the first path points to the
+box's ``bin``. We'll talk about this later in the `How it works`_
+section. Prefixing ``env`` to every command can be annoying, so
+``box`` has a ``shell`` command that spawns a shell with the
+environment set up. The ``env`` script exports also an environment
+variable, ``BPT_BOX_PATH``, that ``box`` uses to know the location of
+the current box::
+
+    $ bpt/box -b my_first_box/ shell
+    (my_first_box) ot@brian ~ $ echo $BPT_BOX_PATH 
+    /Users/ot/my_first_box
+
+To install packages into a box, ``box`` offers two different commands:
+``build`` and ``autobuild``. The first works with *sourcedirs*: a
+*sourcedir* is a directory that contains a ``bpt-rules`` file, which
+contains the instructions to build the software. A good practice is to
+install BPT itself into the box (the source distribution of BPT is a
+*sourcedir*)::
+
+    (my_first_box) ot@brian ~ $ bpt/box build bpt
+    INFO:BPT:Using current box "my_first_box"
+    INFO:BPT:Building application bpt, in sourcedir work/experimental/bpt
+    ...
+    (my_first_box) ot@brian ~ $ which box
+    /tmp/box_87a482cc-34fc-11de-865a-001ec21bf2c7/bin/box
+
+Now we can run the shell using the box's ``box``::
+
+    $ my_first_box/env box shell
+    INFO:BPT:Using current box "my_first_box"
+
+    (my_first_box) ot@brian ~ $ 
+
+Another example of *sourcedir* is given by ``python30`` in the
+``examples`` directory, which installs python 3.0.1::
+
+    (my_first_box) ot@brian ~ $ box build examples/python30/
+    ...
+
+    (my_first_box) ot@brian ~ $ python3.0 --version
+    Python 3.0.1
+
+The ``autobuild`` command instead tries to build and install a
+tarball. It works when the software builds using the usual
+``configure``/``make`` or ``setup.py``::
+
+    (my_first_box) ot@brian ~ $ box autobuild Downloads/ipython-0.9.1.tar.gz 
+    INFO:BPT:Using current box "my_first_box"
+    INFO:BPT:Guessed application name "ipython", version "0.9.1". Unpacking the file...
+    INFO:BPT:Building and installing as package ipython-0.9.1
+    ...
+
+    (my_first_box) ot@brian ~ $ which ipython
+    /tmp/box_87a482cc-34fc-11de-865a-001ec21bf2c7/bin/ipython
+
+    (my_first_box) ot@brian ~ $ box autobuild Downloads/sqlite-amalgamation-3.6.3.tar.gz 
+    INFO:BPT:Using current box "my_first_box"
+    INFO:BPT:Guessed application name "sqlite-amalgamation", version "3.6.3". Unpacking the file...
+    INFO:BPT:Building and installing as package sqlite-amalgamation-3.6.3
+    ...
+
+    (my_first_box) ot@brian ~ $ which sqlite3
+    /tmp/box_87a482cc-34fc-11de-865a-001ec21bf2c7/bin/sqlite3
+
+The ``status`` command shows the installed packages::
+
+    (my_first_box) ot@brian ~ $ box status
+    INFO:BPT:Using current box "my_first_box"
+    
+    PACKAGE                       | NAME                | VERSION   | STATUS    |
+    
+    bpt-0.1                       | bpt                 | 0.1       | enabled   |
+    ipython-0.8.4                 | ipython             | 0.8.4     | disabled  |
+    ipython-0.9.1                 | ipython             | 0.9.1     | enabled   |
+    python30-3.0.1                | python30            | 3.0.1     | enabled   |
+    sqlite-amalgamation-3.6.3     | sqlite-amalgamation | 3.6.3     | enabled   |
+
+Packages can be enabled/disabled with the ``enable``/``disable`` commands::
+
+    (my_first_box) ot@brian ~ $ box disable python30-3.0.1
+
+    (my_first_box) ot@brian ~ $ python3.0
+    bash: python3.0: command not found
+
+    (my_first_box) ot@brian ~ $ box enable python30-3.0.1
+
+    (my_first_box) ot@brian ~ $ python3.0 --version
+    Python 3.0.1
+
+Executing ``disable`` with the ``--remove`` switch deletes permanently
+the package files.
+
+
+Features
+========
+
+TODO
+
+Use cases
+=========
+
+TODO
+
+How it works
+============
+
+TODO
+
+Writing the ``bpt-rules`` file
+==============================
+
+TODO
+
+Supported operating systems
+===========================
+
+BPT should work with any POSIX operating system. It has been tested on
+Mac OS X Leopard and several Ubuntu releases.
+
+License
+=======
+
+BPT is distributed under the terms of the GPL License. The full
+license is in the file COPYING, distributed as part of this software.
+
+Credits
+=======
+
+* Giuseppe Ottaviano <giuott at gmail dot com>
+
+
+
