@@ -82,7 +82,8 @@ class SourceDir(object):
                    + 'bpt_build;'
                    )
         retcode = call(['bash', '-e', box.env_script, sh_line])
-        assert retcode == 0, 'FATAL: build script exited with status %s' % retcode
+        if retcode != 0:
+            raise UserError('FATAL: build script exited with status %s' % retcode)
 
         box.enable_package(pkg)
         return pkg
