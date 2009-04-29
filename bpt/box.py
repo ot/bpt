@@ -98,6 +98,11 @@ class Box(object):
         '''The name of the box, defined as the basename of the directory'''
         return os.path.basename(os.path.abspath(self.path))
 
+    @property
+    def env_script(self):
+        '''Path of the env script'''
+        return os.path.join(self.path, 'env')
+
     def __eq__(self, other):
         ''' Compare equality by box_id
 
@@ -261,14 +266,13 @@ class Box(object):
         
         env_script = open(ENV_SCRIPT_TMPL).read() % locals() # XXX(ot) close file?
         
-        env_script_path = os.path.join(self.path, 'env')
-        env_script_file = open(env_script_path, 'w')
+        env_script_file = open(self.env_script, 'w')
 
         try: 
             env_script_file.write(env_script)
         finally:
             env_script_file.close()
-        os.chmod(env_script_path, 0755)
+        os.chmod(self.env_script, 0755)
 
         log.info('Created env script')
 

@@ -59,8 +59,7 @@ class shell(Command):
         else:
             # Have to set the correct environment, so execute a shell using the env script
             # XXX(ot): does this spawn two bashs?
-            env_script = os.path.join(config.box.path, 'env')
-            call(['bash', env_script, 'PS1="%s"' % shell_prompt, 'bash', '-norc', '-noprofile'])
+            call(['bash', config.box.env_script, 'PS1="%s"' % shell_prompt, 'bash', '-norc', '-noprofile'])
 
 class status(Command):
     '''Show the installed packages. Packages can be narrowed down using a regex'''

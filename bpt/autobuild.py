@@ -129,7 +129,7 @@ def autobuild(box, filename, configure_options='', keep_temp=False):
 
         log.info('Building and installing as package %s', pkg.name)
         for cmd in cmd_list:
-            check_call(['bash', '-e', '%s/env' % box.path, cmd], cwd=source_dir)
+            check_call(['bash', '-e', box.env_script, cmd], cwd=source_dir)
                 
         box.enable_package(pkg)
     finally:

@@ -74,7 +74,7 @@ class SourceDir(object):
                    # XXX(ot): download
                    + 'build;'
                    )
-        retcode = call(['bash', '-e', '%s/env' % box.path, sh_line])
+        retcode = call(['bash', '-e', box.env_script, sh_line])
         assert retcode == 0, 'FATAL: build script exited with status %s' % retcode
 
         box.enable_package(pkg)
