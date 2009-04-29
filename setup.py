@@ -13,10 +13,17 @@ app_name='bpt'
 from bpt import __version__ as app_version
 
 if __name__ == '__main__':
+    import os
     from distutils.core import setup
+
+    f = open(os.path.join(os.path.dirname(__file__), 'README'))
+    long_description = f.read().strip()
+    f.close()
+
     setup(name=app_name,
           version=app_version,
           description='Tool to create isolated environments',
+          long_description=long_description,
           author='Giuseppe Ottaviano',
           author_email='giuott@gmail.com',
           url='http://pypi.python.org/pypi/bpt',
