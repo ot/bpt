@@ -106,8 +106,8 @@ class Box(object):
     def __eq__(self, other):
         ''' Compare equality by box_id
 
-        >>> box1 = mktemp()
-        >>> box2 = mktemp()
+        >>> box1 = Box.create(mktemp())
+        >>> box2 = Box.create(mktemp())
         >>> box1 == box1
         True
         >>> box1 == box2
