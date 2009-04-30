@@ -48,6 +48,7 @@ def unlinkdir(src_path, dst_path):
             try:
                 os.rmdir(dpath)
             except OSError:
+                # Directory not empty, leaving it
                 pass
         
         for f in files:
