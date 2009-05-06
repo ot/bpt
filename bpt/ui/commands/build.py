@@ -28,7 +28,10 @@ class build(Command):
                    make_option('-s', '--suffix', action='store',
                                dest='suffix',
                                default='',
-                               help='Append a suffix to the package name.')
+                               help='Append a suffix to the package name.'),
+                   make_option('-t', '--test', action='store_true',
+                               dest='test',
+                               help='Run the tests after building the package.')
                    ]
         Command.__init__(self, options)
         
@@ -42,6 +45,8 @@ class build(Command):
             if cmd_options.clean_before:
                 sd.clean()
             sd.build(config.box, cmd_options.suffix)
+            if cmd_options.test:
+                sd.unittest()
 
 class clean(Command):
     '''Clean a set of sourcedirs'''
