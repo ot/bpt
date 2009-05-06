@@ -77,6 +77,6 @@ def main(argv, do_log=True):
         parser.print_help()
         return 255
     except bpt.UserError, exc:
-        log.error('Aborting: %s', exc.message)
+        log.error('Aborting: %s', str(exc))
         return 1
     

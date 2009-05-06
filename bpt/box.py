@@ -61,7 +61,7 @@ class Box(object):
             self._id = box_info['id']
             self._platform = box_info['platform']
         except KeyError, exc:
-            raise UserError('Invalid box_info: missing "%s"', exc.message)
+            raise UserError('Invalid box_info: missing "%s"', str(exc))
         
         # Ensure that the virtual path symlink is existing and points
         # to the correct location
@@ -135,7 +135,7 @@ class Box(object):
                 os.makedirs(os.path.join(dest_path, directory))
         except OSError, exc:
             raise UserError('Impossible to create destination directories: "%s"', 
-                            exc.message)
+                            str(exc))
 
         box_info = dict()
         box_info['id'] = str(uuid1())
@@ -291,7 +291,7 @@ def get_current_box():
             box = Box(box_path)
             return box
         except UserError, exc:
-            log.warning('Not using current box %s because of error "%s"', box_path, exc.message)
+            log.warning('Not using current box %s because of error "%s"', box_path, str(exc))
     return None
     
 def _get_platform():
