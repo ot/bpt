@@ -1,5 +1,6 @@
-include README
+include CHANGES
 include COPYING
+include README
 include bpt-rules
 include bpt/env_script.tmpl
 include bpt/bpt_base_script.sh
