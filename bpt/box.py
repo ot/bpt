@@ -234,7 +234,7 @@ class Box(object):
 
         for d in DYN_DIRS:
             src_path = os.path.abspath(os.path.join(package.path, d))
-            dest_path = os.path.abspath(os.path.join(self.path, d))
+            dest_path = os.path.abspath(os.path.join(self.virtual_path, d))
             linkdir(src_path, dest_path)
 
     def _unlink_package(self, package):
@@ -242,7 +242,7 @@ class Box(object):
 
         for d in DYN_DIRS:
             src_path = os.path.abspath(os.path.join(package.path, d))
-            dest_path = os.path.abspath(os.path.join(self.path, d))
+            dest_path = os.path.abspath(os.path.join(self.virtual_path, d))
             unlinkdir(src_path, dest_path)
 
     def _create_env_script(self):
