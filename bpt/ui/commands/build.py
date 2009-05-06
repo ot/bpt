@@ -9,11 +9,10 @@ Build command
 #  the file COPYING, distributed as part of this software.
 #*****************************************************************************
 
-import os
 from optparse import make_option
 
 from bpt.ui.command import Command
-from bpt.box import Box, require_box
+from bpt.box import require_box
 from bpt.build import SourceDir
 
 class build(Command):
@@ -68,7 +67,8 @@ class clean(Command):
             sd.clean(cmd_options.deep)
 
 class unittest(Command):
-    '''Run unit tests inside a set of sourcedirs. Should be invoked only after a build command.'''
+    '''Run unit tests inside a set of sourcedirs. 
+    Should be invoked only after a build command.'''
 
     usage_args = '<source package> ...'
 

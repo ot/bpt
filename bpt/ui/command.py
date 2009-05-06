@@ -16,7 +16,9 @@ import optparse
 class Command(object):
     '''Base class for Command objects.'''
     
-    def __init__(self, options=[]):
+    def __init__(self, options=None):
+        if options is None:
+            options = []
         self.options = options
 
     def execute(self, config, cmd_args):
@@ -54,7 +56,7 @@ class InvalidCommandLine(Exception): pass
 class CommandNotFound(Exception): pass
 
 def get_commands():
-    return Command.__subclasses__()
+    return Command.__subclasses__() # pylint: disable-msg=E1101
 
 def dispatch(command, config, cmd_args):
     '''Run a command. Raises CommandNotFound if command does not exist'''

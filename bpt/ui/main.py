@@ -9,7 +9,6 @@ Command line frontend for BPT
 #  the file COPYING, distributed as part of this software.
 #*****************************************************************************
 
-import sys
 import logging
 from optparse import OptionParser
 

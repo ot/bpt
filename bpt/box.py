@@ -13,8 +13,7 @@ import os
 import re
 import shutil
 from uuid import uuid1
-from tempfile import mktemp # for doctests
-from subprocess import call
+from tempfile import mktemp # for doctests, pylint: disable-msg=W0611
 
 import bpt
 from bpt import log, UserError

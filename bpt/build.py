@@ -14,7 +14,6 @@ from subprocess import call
 
 from bpt import log, UserError
 from bpt.util import getstatusoutput, store_info, load_info
-from bpt.package import Package
 
 BASE_SH_SCRIPT = os.path.abspath(
     os.path.join(os.path.dirname(__file__), 

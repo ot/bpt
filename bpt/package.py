@@ -58,9 +58,6 @@ class Package(object):
         
 
     def __getattr__(self, attr):
-        if attr.startswith('_'):
-            return object.__getattr__(self, attr)
-
         try:
             return self._dict[attr]
         except KeyError, exc:

@@ -13,7 +13,7 @@ __version__ = '0.2a'
 __author__ = 'Giuseppe Ottaviano <giuott@gmail.com>'
 
 import logging
-log = logging.getLogger('BPT')
+log = logging.getLogger('BPT') # pylint: disable-msg=C0103
 
 class UserError(Exception):
     '''Error to be reported to the user'''
