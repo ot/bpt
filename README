@@ -9,13 +9,19 @@ What is BPT
 ===========
 
 BPT is a Python library (``bpt``) and a command line application
-(``box``) to create and manage isolated enviroments, or *boxes*. Boxes
-are *relocatable*, which means that they can be moved to a different
-directory or even distributed to other machines (provided that the
-architecture is compatible). Packages inside the box can be easily
-disabled, enabled and removed, so that different versions of the same
-software can be installed simultaneously, allowing to switch between
-them.
+(``box``) to create and manage isolated enviroments, or *boxes*. 
+
+- Boxes are *relocatable*, which means that they can be moved to a
+  different directory or even distributed to other machines (provided
+  that the architecture is compatible).
+
+- Packages inside the box can be easily disabled, enabled and removed,
+  so that different versions of the same software can be installed
+  simultaneously, allowing to switch between them. 
+
+- Boxes can be *nested*, in the sense that it is possible to activate
+  a box environment while inside another box environment, so that all
+  the packages installed in both boxes are available, and so on.
 
 BPT is similar in some ways to `virtualenv
 <http://pypi.python.org/pypi/virtualenv>`_, but it is not restricted
@@ -28,10 +34,12 @@ format is inspired by `Gentoo <http://www.gentoo.org/>`_'s ebuilds.
 How to use it
 =============
 
-A *box* is a directory whose structure resembles ``/usr/``, that can
-contain one or more software *packages*. Each package is contained in
-a subdirectory of the ``pkgs`` directory in the box. A box contains a
-script, ``env``, which sets up the environment, putting all the
+A *box* is a directory whose structure resembles ``/usr/`` (as defined
+in the `Filesystem Hierarchy Standard
+<http://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard>`_), that
+can contain one or more software *packages*. Each package is contained
+in a subdirectory of the ``pkgs`` directory in the box. A box contains
+a script, ``env``, which sets up the environment, putting all the
 libraries, executables, etc. in the path.
 
 The command to create a box is::
@@ -72,10 +80,16 @@ the current box::
     /Users/ot/my_first_box
 
 To install packages into a box, ``box`` offers two different commands:
-``build`` and ``autobuild``. The first works with *sourcedirs*: a
-*sourcedir* is a directory that contains a ``bpt-rules`` file, which
-contains the instructions to build the software. A good practice is to
-install BPT itself into the box (the source distribution of BPT is a
+``build`` and ``autobuild``. 
+
+
+``build``
+---------
+
+The ``build`` command works with *sourcedirs*: a *sourcedir* is a
+directory that contains a ``bpt-rules`` file, which contains the
+instructions to build the software. A good practice is to install BPT
+itself into the box (the source distribution of BPT is a
 *sourcedir*)::
 
     (my_first_box) ot@brian ~ $ bpt/box build bpt
@@ -101,9 +115,13 @@ Another example of *sourcedir* is given by ``python30`` in the
     (my_first_box) ot@brian ~ $ python3.0 --version
     Python 3.0.1
 
-The ``autobuild`` command instead tries to build and install a
-tarball. It works when the software builds using the usual
-``configure``/``make`` or ``setup.py``::
+``autobuild``
+-------------
+
+The ``autobuild`` command, when invoked with a vanilla source tarball,
+tries to build and install it by guessing the build commands. It works
+when the software builds using the usual ``configure``/``make`` or
+``setup.py``::
 
     (my_first_box) ot@brian ~ $ box autobuild Downloads/ipython-0.9.1.tar.gz 
     INFO:BPT:Using current box "my_first_box"
@@ -151,26 +169,78 @@ Packages can be enabled/disabled with the ``enable``/``disable`` commands::
 Executing ``disable`` with the ``--remove`` switch deletes permanently
 the package files.
 
-
-Features
-========
-
-TODO
-
 Use cases
 =========
 
-TODO
+- The main purpose of BPT is to create self-contained environments to
+  be deployed in case it is not possible to install packages
+  system-wide (for example because of non-friendly sysadmins or
+  providers) or when different applications on the same machine need
+  different versions of their dependencies. The box can be built on a
+  development machine and then sent to deployment machines without
+  having to take care of paths, thanks to relocatability of
+  boxes. Several boxes with different versions of packages can be run
+  on the same machine, as long as they have different ``box_id``
+  (i.e. they have been created independently). 
+
+- BPT is also a convenient alternative to cluttering ``/usr/local``
+  when packages that are not packaged by the system distribution (or a
+  different version is packaged) are needed. For example it is
+  possible to add to ``.bashrc`` a line like::
+
+    source ~/my_box/env  
+
+  so that we are always inside a common box where we can install new
+  software with ``autobuild`` (or by writing the ``bpt-rules`` when
+  needed). Notice that since boxes can be nested, this creates no
+  problems with other boxes.
 
 How it works
 ============
 
-TODO
+BPT is designed to work around two problems common to Unix
+applications and libraries:
+
+- Often the prefix (like ``/usr/local``) is hardcoded in the binary
+  during compilation. This implies that once a software its compiled,
+  its installation path cannot change. In other words, it is not
+  *relocatable*.
+
+- Everything is installed in the same directories (``bin``, ``lib``,
+  etc...). Hence is difficult or impossible to remove an installed
+  software without using a packaging system, and is virtually
+  impossible to keep different versions of the same software installed
+  on the system. 
+
+Both problems are solved by BPT by using symlinks. When an application
+is compiled, the prefix passed to the compilation script has the form::
+  
+  /tmp/box_<uuid>/pkgs/<pkg_name>
+
+where ``<uuid>`` is a unique identifier of the box, and ``<pkg_name>``
+identifies the (name, version) pair of the software. The ``env``
+script ensures that ``/tmp/box_<uuid>`` is a symlink to the box.
+Then, when a package is installed/enabled, all the contents of the
+package are symlinked to the box root (where the ``PATH`` variables
+point to).
+
+- If we relocate the box, the ``env`` script will fix the symlink.
+
+- Disabling a package is just matter of removing its symlinks, while
+  if we remove its ``pkgs`` subdirectory, all the package files are
+  removed.
+
+If packages are manually removed by deleting their directories,
+symlinks may be broken. The ``sync`` command can be used to restore
+the consistency of the box by recreating all the symlinks and the
+``env`` script. 
 
 Writing the ``bpt-rules`` file
 ==============================
 
-TODO
+*TODO* For now, see the ``examples/python30`` example, it is quite
+self-explanatory. Keep in mind that, for most software, ``autobuild``
+just works.
 
 Supported operating systems
 ===========================

@@ -9,11 +9,10 @@ autobuild command
 #  the file COPYING, distributed as part of this software.
 #*****************************************************************************
 
-import os
 from optparse import make_option
 
 from bpt.ui.command import Command
-from bpt.box import Box, require_box
+from bpt.box import require_box
 from bpt.autobuild import autobuild as autobuild_
 
 class autobuild(Command):

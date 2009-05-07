@@ -17,12 +17,12 @@ from subprocess import check_call
 from shutil import rmtree
 
 from bpt import log, UserError
-from bpt.box import Box
-from bpt.util import getstatusoutput
 
 SETUPTOOLS_WORKAROUND = True 
 
-class UnsupportedFile(Exception): pass
+class UnsupportedFile(Exception): 
+    '''Unable to guess file extension, package metadata or how to
+    build the package'''
 
 def guess_unpack_cmd(filename):
     '''
@@ -87,11 +87,13 @@ def autobuild(box, filename, configure_options='', keep_temp=False):
         basename, unpack_cmd = guess_unpack_cmd(filename)
         name, version = guess_name_version(basename)
 
-        log.info('Guessed application name "%s", version "%s". Unpacking the file...', name, version)
+        log.info('Guessed application name "%s", version "%s". '
+                 'Unpacking the file...', name, version)
         check_call(unpack_cmd, cwd=build_dir)
 
-        unpacked_files = [os.path.join(build_dir, f) for f in os.listdir(build_dir)]
-        unpacked_dirs = filter(os.path.isdir, unpacked_files)
+        unpacked_files = [os.path.join(build_dir, f) 
+                          for f in os.listdir(build_dir)]
+        unpacked_dirs = [d for d in unpacked_files if os.path.isdir(d)]
         if len(unpacked_dirs) != 1:
             raise UnsupportedFile('Could not find source directory')
         source_dir, = unpacked_dirs
@@ -110,7 +112,8 @@ def autobuild(box, filename, configure_options='', keep_temp=False):
         elif os.path.exists(os.path.join(source_dir, 'setup.py')):
             envvars = ''
             if SETUPTOOLS_WORKAROUND:
-                # Workaround two bugs of setuptools (fixed in http://bugs.python.org/setuptools/issue54 )
+                # Workaround two bugs of setuptools 
+                # (fixed in http://bugs.python.org/setuptools/issue54 )
                 # - Put the site-packages path in python's path
                 # - Create the site-packages directory
 
@@ -119,10 +122,13 @@ def autobuild(box, filename, configure_options='', keep_temp=False):
                 python_version = '.'.join([str(x) for x in sys.version_info[:2]])
                 site_path = '%s/lib/python%s/site-packages/' % (pkg.path, python_version)
                 envvars = 'PYTHONPATH="%s${PYTHONPATH:+:$PYTHONPATH}"' % site_path
-                try: os.makedirs(site_path)
-                except OSError: pass
+                try: 
+                    os.makedirs(site_path)
+                except OSError: 
+                    pass
             cmd_list = [
-                "%s python setup.py install --prefix '%s' %s" % (envvars, pkg.path, configure_options),
+                "%s python setup.py install --prefix '%s' %s" % 
+                (envvars, pkg.path, configure_options),
                 ]
         else:
             raise UnsupportedFile('Do not know how to build source')

@@ -1,0 +1,27 @@
+===============
+ BPT changelog
+===============
+
+Version 0.3
+===========
+
+- Improved documentation
+
+- Fixed a bug that prevented the ``env`` script to be ``source``\'d
+  (Works only with bash >= 3.0)
+
+- Fixed a bug in the creation of symlinks that broken relocatability.
+
+- ``env`` script does no more rely on GNU's ``readlink``, that is not
+  present in vanilla OSX
+
+- Other minor fixes
+
+
+Version 0.2a
+============
+
+- First public version
+
+
+
