@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''\
-Common data for the SPT project
+Common data for the BPT project
 '''
 #*****************************************************************************
 #       Copyright (C) 2009 Giuseppe Ottaviano <giuott@gmail.com>
