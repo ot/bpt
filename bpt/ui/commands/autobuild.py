@@ -11,9 +11,10 @@ autobuild command
 
 from optparse import make_option
 
+from bpt import UserError
 from bpt.ui.command import Command
 from bpt.box import require_box
-from bpt.autobuild import autobuild as autobuild_
+from bpt.autobuild import autobuild as autobuild_, UnsupportedPath
 
 class autobuild(Command):
     '''Try to build a set of tarballs into the box, guessing the build commands'''
@@ -36,5 +37,8 @@ class autobuild(Command):
         self._require_args(cmd_args, 1)
         require_box(config)
 
-        for tarball in cmd_args:
-            autobuild_(config.box, tarball, cmd_options.configure_options, cmd_options.keep)
+        try:
+            for tarball in cmd_args:
+                autobuild_(config.box, tarball, cmd_options.configure_options, cmd_options.keep)
+        except UnsupportedPath, exc:
+            raise UserError(str(exc))
