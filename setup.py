@@ -30,7 +30,7 @@ setup(name=app_name,
                 'bpt.ui.commands'
                 ],
       package_data={'bpt':['env_script.tmpl', 'bpt_base_script.sh']},
-      scripts=['box'],
+      scripts=['box', 'pip-box'],
       classifiers=['Development Status :: 4 - Beta',
                    'Environment :: Console',
                    'Intended Audience :: Developers',
