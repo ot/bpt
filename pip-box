@@ -1524,53 +1524,31 @@ execfile(__file__)
                 % (self.url, vc_type))
 
     def install(self, install_options):
-        if self.editable:
-            self.install_editable()
-            return
-        ## FIXME: this is not a useful record:
-        ## Also a bad location
-        if sys.platform == 'win32':
-            install_location = os.path.join(sys.prefix, 'Lib')
-        else:
-            install_location = os.path.join(sys.prefix, 'lib', 'python%s' % sys.version[:3])
-        temp_location = tempfile.mkdtemp('-record', 'pip-')
-        record_filename = os.path.join(temp_location, 'install-record.txt')
-        ## FIXME: I'm not sure if this is a reasonable location; probably not
-        ## but we can't put it in the default location, as that is a virtualenv symlink that isn't writable
-        header_dir = os.path.join(os.path.dirname(os.path.dirname(self.source_dir)), 'lib', 'include')
-        logger.notify('Running setup.py install for %s' % self.name)
+
+        # if self.editable:
+        #     self.install_editable()
+        #     return
+
+        from bpt.box import get_current_box
+        box = get_current_box()
+        pkg = box.create_package('%s-%s' % (self.name, self.installed_version),
+                                 app_name=self.name, 
+                                 app_version=self.installed_version,
+                                 enabled=False)
         logger.indent += 2
         try:
+            # XXX(ot): install headers?
             call_subprocess(
                 [sys.executable, '-c',
                  "import setuptools; __file__=%r; execfile(%r)" % (self.setup_py, self.setup_py),
-                 'install', '--single-version-externally-managed', '--record', record_filename,
-                 '--install-headers', header_dir] + install_options,
+                 'install', '--prefix', pkg.path,
+                 '--single-version-externally-managed', '--record', '/dev/null'
+                 ] + install_options,
                 cwd=self.source_dir, filter_stdout=self._filter_install, show_stdout=False)
         finally:
             logger.indent -= 2
-        f = open(record_filename)
-        for line in f:
-            line = line.strip()
-            if line.endswith('.egg-info'):
-                egg_info_dir = line
-                break
-        else:
-            logger.warn('Could not find .egg-info directory in install record for %s' % self)
-            ## FIXME: put the record somewhere
-            return
-        f.close()
-        new_lines = []
-        f = open(record_filename)
-        for line in f:
-            filename = line.strip()
-            if os.path.isdir(filename):
-                filename += os.path.sep
-            new_lines.append(make_path_relative(filename, egg_info_dir))
-        f.close()
-        f = open(os.path.join(egg_info_dir, 'installed-files.txt'), 'w')
-        f.write('\n'.join(new_lines)+'\n')
-        f.close()
+
+        box.enable_package(pkg)
 
     def remove_temporary_source(self):
         """Remove the source files from this requirement, if they are marked
