@@ -50,3 +50,11 @@ def test_ui():
     assert box(['-b', box1_path, 'disable', '-r', 'foo-0.1']) == 0
 
     assert box(['-b', box1_path, 'sync']) == 0
+
+def test_help():
+    assert box(['--help']) == 0
+    assert box(['--help-commands']) == 0
+    assert box(['unittest', '--help']) == 0
+    
+    
+    

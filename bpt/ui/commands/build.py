@@ -67,7 +67,7 @@ class clean(Command):
             sd.clean(cmd_options.deep)
 
 class unittest(Command):
-    '''Run unit tests inside a set of sourcedirs. 
+    '''Run unit tests inside a set of sourcedirs.
     Should be invoked only after a build command.'''
 
     usage_args = '<source package> ...'

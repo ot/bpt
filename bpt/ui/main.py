@@ -10,26 +10,25 @@ Command line frontend for BPT
 #*****************************************************************************
 
 import logging
-from optparse import OptionParser
 
 import bpt
 from bpt import log
 from bpt import ui
-from bpt.ui.config import Config
+from bpt.ui.config import Config, BPTOptionParser, ParserExit
 from bpt.box import Box, get_current_box
 
 def help_commands(option, opt_str, value, parser):
-    commands = [(x.__name__, x.__doc__) for x in ui.command.get_commands()]
+    commands = [(x.name, x.description) for x in ui.command.get_commands()]
     commands.sort()
+    # XXX(ot): use more formatting magic for long descriptions?
     for name, description in commands:
         print '  %-15s %s' % (name, description)
     print
     print 'For more informations about <command> run "%s <command> --help"' % parser.get_prog_name()
     parser.exit()
-    
 
 def setup_optparse():
-    parser = OptionParser(
+    parser = BPTOptionParser(
         usage='%prog command [ options ... ]',
         description='Tool for creating/managing package boxes',
         version='%%prog %s' % bpt.__version__)
@@ -51,8 +50,11 @@ def main(argv, do_log=True):
         logging.basicConfig()
         log.setLevel(logging.INFO)
     
-    parser = setup_optparse()
-    options, args = parser.parse_args(argv[1:])
+    try:
+        parser = setup_optparse()
+        options, args = parser.parse_args(argv[1:])
+    except ParserExit:
+        return 0
     
     if not args:
         parser.print_help()
@@ -78,4 +80,6 @@ def main(argv, do_log=True):
     except bpt.UserError, exc:
         log.error('Aborting: %s', str(exc))
         return 1
+    except ParserExit:
+        return 0
     
