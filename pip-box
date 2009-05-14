@@ -1536,6 +1536,9 @@ execfile(__file__)
             return
 
         box = get_current_box()
+        if box is None:
+            raise InstallationError('ERROR: Not in a box environment. Prefix <box path>/env to the command line')
+
         pkg = box.create_package('%s-%s' % (self.name, self.installed_version),
                                  app_name=self.name, 
                                  app_version=self.installed_version,
