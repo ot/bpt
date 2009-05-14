@@ -204,7 +204,7 @@ class Box(object):
 
         # Disable other versions of the same application
         for other in self.packages(only_enabled=True):
-            if other is not package and other.app_name == package.app_name:
+            if other is not package and other.app_name.lower() == package.app_name.lower():
                 self.disable_package(other)
 
         log.info('Enabling package %s', package)

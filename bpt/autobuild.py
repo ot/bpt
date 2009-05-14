@@ -70,7 +70,7 @@ def guess_name_version(basename):
     >>> guess_name_version('abc.25')
     Traceback (most recent call last):
     ...
-    UnsupportedPath: Unable to guess name and version
+    UnsupportedPath: Unable to guess name and version from "abc.25"
     '''
 
     match = FILENAME_RE.match(basename)
