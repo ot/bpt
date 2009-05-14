@@ -31,6 +31,9 @@ software. It also takes some ideas from `jhbuild
 resolution and automatic downloading machinery, and the ``bpt-rules``
 format is inspired by `Gentoo <http://www.gentoo.org/>`_'s ebuilds.
 
+A fork of PIP_ is included to make installation of python packages
+easier, and as an example of use of the BPT API.
+
 How to use it
 =============
 
@@ -69,7 +72,7 @@ To execute a command within the box environment, use the ``env`` script::
 
 Even if it may not seem obvious at first, the first path points to the
 box's ``bin``. We'll talk about this later in the `How it works`_
-section. Prefixing ``env`` to every command can be annoying, so
+section. Prefixing ``env`` to every command can be boring, so
 ``box`` has a ``shell`` command that spawns a shell with the
 environment set up. The ``env`` script exports also an environment
 variable, ``BPT_BOX_PATH``, that ``box`` uses to know the location of
@@ -80,7 +83,9 @@ the current box::
     /Users/ot/my_first_box
 
 To install packages into a box, ``box`` offers two different commands:
-``build`` and ``autobuild``. 
+``build`` and ``autobuild``. Alternatively, external programs can use
+the BPT API to install packages. An example is given by ``pip-box``,
+included in the distribution.
 
 
 ``build``
@@ -118,10 +123,10 @@ Another example of *sourcedir* is given by ``python30`` in the
 ``autobuild``
 -------------
 
-The ``autobuild`` command, when invoked with a vanilla source tarball,
-tries to build and install it by guessing the build commands. It works
-when the software builds using the usual ``configure``/``make`` or
-``setup.py``::
+The ``autobuild`` command, when invoked with a vanilla source tarball
+or a source directory, tries to build and install it by guessing the
+build commands. It works when the software builds using the usual
+``configure``/``make`` or ``setup.py``::
 
     (my_first_box) ot@brian ~ $ box autobuild Downloads/ipython-0.9.1.tar.gz 
     INFO:BPT:Using current box "my_first_box"
@@ -140,6 +145,53 @@ when the software builds using the usual ``configure``/``make`` or
 
     (my_first_box) ot@brian ~ $ which sqlite3
     /tmp/box_87a482cc-34fc-11de-865a-001ec21bf2c7/bin/sqlite3
+
+To guess name and version of the package, the tarball/directory name
+is used, so it has to be of the form ``<name>-<version><extension>``.
+
+``pip-box``
+-----------
+
+``pip-box`` is a fork of PIP_ 0.3.1 where only
+``InstallRequirement.install{,_editable}`` have been replaced to
+install every package inside the current box::
+
+     $ new_box/env pip-box install -qI sphinx
+     INFO:BPT:Enabling package Jinja2-2.1.1
+     INFO:BPT:Linking package Jinja2-2.1.1
+     INFO:BPT:Created env script
+     INFO:BPT:Enabling package Pygments-1.0
+     INFO:BPT:Linking package Pygments-1.0
+     INFO:BPT:Created env script
+     INFO:BPT:Enabling package sphinx-0.6.1
+     INFO:BPT:Linking package sphinx-0.6.1
+     INFO:BPT:Created env script
+     INFO:BPT:Enabling package docutils-0.5
+     INFO:BPT:Linking package docutils-0.5
+     INFO:BPT:Created env script
+
+     $ new_box/env box status
+     INFO:BPT:Using current box "new_box"
+
+     PACKAGE                       | NAME                | VERSION   | STATUS    |
+
+     Jinja2-2.1.1                  | Jinja2              | 2.1.1     | enabled   |
+     sphinx-0.6.1                  | sphinx              | 0.6.1     | enabled   |
+     docutils-0.5                  | docutils            | 0.5       | enabled   |
+     Pygments-1.0                  | Pygments            | 1.0       | enabled   |
+
+Since only the install functions where changed, it is completely
+command-line-compatible with PIP_. (Interaction with virtualenv was
+not tested and probably it won't work)
+
+``pip-box`` is just a working proof-of-concept of an external
+application that uses the BPT API. If future versions of PIP_ allow to
+override the install commands, probably the fork will be removed and
+the PIP_ API will be used instead.
+
+
+Other commands
+--------------
 
 The ``status`` command shows the installed packages::
 
@@ -242,6 +294,62 @@ Writing the ``bpt-rules`` file
 self-explanatory. Keep in mind that, for most software, ``autobuild``
 just works.
 
+Also, the ``bpt-rules`` format may soon change (or, more probably, a
+new syntax will be added alongside)
+
+TODO
+====
+
+Some features planned for next releases. Ideas and patches are very
+welcome.
+
+* Dependencies. Would be very convenient to have automatic dependency
+  resolution. I would like to achieve the following goals:
+
+  * It should be very easy to install a package with a set of packages
+    satisfying its dependencies.
+
+  * Boxes are mainly meant for deploy, so it is needed a system to
+    freeze a set of versions (instead of downloading the newest
+    satisfying version, as easy_install and most packaging systems do,
+    because it can break things)
+    
+  * It should be possible to specify mirrors for the packages so that
+    a build bot has not to be connected to the Internet.
+
+  * The system should not rely on a centralized repository. Maybe,
+    specify via configuration a set of repositories, a-la
+    apt/sources.list.
+
+  * A PIP-like "editable" package mode should be available, for
+    development (and so, also integration with VCSs)
+
+  PIP_ gets most of these things right, so I could just copy or
+  integrate its model. 
+
+* Investigate Windows support (native, not cygwin, which should
+  already work). This would need at least the following:
+
+  * Generate a env.bat instead of env script using Windows batch files
+
+  * Do not use ``bash`` as a syntax for bpt-rules (talk about this
+    later)
+  
+  * See if the directories/symlinks/environment variables (PATHs) can
+    be adapted to Windows. This requires a Windows guru, I do not know
+    almost anything about it.
+
+* Get rid of ``bash`` as syntax for bpt-rules. Maybe a Python DSEL
+  would be ideal: something like scons or waf, so that the
+  declarations can be abstract enough to be cross-platform.
+  
+* Buildout support? 
+
+* It has been suggested that ``box`` is too generic for the script
+  name, and there could be collisions. If I receive enough feedback
+  about this issue, I could rename the script to ``pbox`` or something
+  similar.
+
 Supported operating systems
 ===========================
 
@@ -259,5 +367,5 @@ Credits
 
 * Giuseppe Ottaviano <giuott at gmail dot com>
 
-
+.. _PIP: http://pypi.python.org/pypi/pip
 
