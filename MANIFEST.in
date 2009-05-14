@@ -2,6 +2,7 @@ include CHANGES
 include COPYING
 include README
 include bpt-rules
+include release_metadata.py
 include bpt/env_script.tmpl
 include bpt/bpt_base_script.sh
 include test/fake_sourcedirs/bar/bpt-rules
