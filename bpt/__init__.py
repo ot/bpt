@@ -9,7 +9,7 @@ Common data for the BPT project
 #  the file COPYING, distributed as part of this software.
 #*****************************************************************************
 
-__version__ = '0.3'
+__version__ = '0.4'
 __author__ = 'Giuseppe Ottaviano <giuott@gmail.com>'
 
 import logging

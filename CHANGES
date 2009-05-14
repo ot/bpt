@@ -6,7 +6,15 @@ Version 0.4
 ===========
 
 - Included a forked version of `PIP
-  <http://pypi.python.org/pypi/pip>`_ 0.3.1 that installs packages in the current box
+  <http://pypi.python.org/pypi/pip>`_ 0.3.1 that installs packages in
+  the current box. Installing python packages is now as easy as
+  ``easy_install``
+
+- Implemented the ``autoremove`` command that removes all the disabled
+  packages (unless they match given patterns)
+
+- Written some new documentation, added a TODO list
+
 
 Version 0.3
 ===========
