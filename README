@@ -189,7 +189,17 @@ application that uses the BPT API. If future versions of PIP_ allow to
 override the install commands, probably the fork will be removed and
 the PIP_ API will be used instead.
 
+Notice that to use ``pip-box``, ``setuptools`` is needed. It can be
+installed in the underlying system, or inside the box using
+``autobuild``::
 
+     $ wget -q http://pypi.python.org/packages/source/s/setuptools/setuptools-0.6c9.tar.gz
+     $ box -b my_box/ autobuild setuptools-0.6c9.tar.gz
+     INFO:BPT:Unpacking the file...
+     INFO:BPT:Guessed application name "setuptools", version "0.6c9"
+     INFO:BPT:Building and installing as package setuptools-0.6c9
+     ...
+     
 Other commands
 --------------
 
