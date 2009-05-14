@@ -1576,7 +1576,7 @@ execfile(__file__)
                                  app_name=self.name, 
                                  app_version=self.installed_version,
                                  enabled=False)
-        # Create the site-packages dir (setuptools won't do that)
+        # Create the site-packages dir (setuptools won't do that, XXX(ot))
         python_version = '.'.join([str(x) for x in sys.version_info[:2]])
         site_path = '%s/lib/python%s/site-packages/' % (pkg.path, python_version)
         if not os.path.isdir(site_path):
@@ -1584,6 +1584,10 @@ execfile(__file__)
         
         try:
             ## FIXME: should we do --install-headers here too?
+
+            # XXX(ot): we need BOTH to insert the site_path in
+            # sys.path and to pass it with --site-dirs... why,
+            # setuptools, why?
             call_subprocess(
                 [sys.executable, '-c',
                  "import setuptools; import sys; sys.path.insert(0, %r); __file__=%r; execfile(%r)" % (site_path, self.setup_py, self.setup_py),
