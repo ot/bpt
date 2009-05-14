@@ -34,6 +34,9 @@ import time
 import logging
 import ConfigParser
 
+import bpt
+from bpt.box import get_current_box
+
 class InstallationError(Exception):
     """General exception during installation"""
 
@@ -898,6 +901,9 @@ UnzipCommand()
 
 
 def main(initial_args=None):
+    logging.basicConfig() # for BPT
+    bpt.log.setLevel(logging.INFO)
+    
     if initial_args is None:
         initial_args = sys.argv[1:]
     options, args = parser.parse_args(initial_args)
@@ -1525,11 +1531,10 @@ execfile(__file__)
 
     def install(self, install_options):
 
-        # if self.editable:
-        #     self.install_editable()
-        #     return
+        if self.editable:
+            self.install_editable()
+            return
 
-        from bpt.box import get_current_box
         box = get_current_box()
         pkg = box.create_package('%s-%s' % (self.name, self.installed_version),
                                  app_name=self.name, 
@@ -1565,13 +1570,30 @@ execfile(__file__)
     def install_editable(self):
         logger.notify('Running setup.py develop for %s' % self.name)
         logger.indent += 2
+ 
+        box = get_current_box()
+        pkg = box.create_package('%s-%s-editable' % (self.name, self.installed_version),
+                                 app_name=self.name, 
+                                 app_version=self.installed_version,
+                                 enabled=False)
+        # Create the site-packages dir (setuptools won't do that)
+        python_version = '.'.join([str(x) for x in sys.version_info[:2]])
+        site_path = '%s/lib/python%s/site-packages/' % (pkg.path, python_version)
+        if not os.path.isdir(site_path):
+            os.makedirs(site_path)
+        
         try:
             ## FIXME: should we do --install-headers here too?
             call_subprocess(
                 [sys.executable, '-c',
-                 "import setuptools; __file__=%r; execfile(%r)" % (self.setup_py, self.setup_py),
-                 'develop', '--no-deps'], cwd=self.source_dir, filter_stdout=self._filter_install,
+                 "import setuptools; import sys; sys.path.insert(0, %r); __file__=%r; execfile(%r)" % (site_path, self.setup_py, self.setup_py),
+                 'develop', '--no-deps', '--prefix', pkg.path,
+                 '--site-dirs', site_path, # convince setuptools that .pth work in site_path 
+                 ], cwd=self.source_dir, 
+                filter_stdout=self._filter_install,
                 show_stdout=False)
+
+            box.enable_package(pkg)
         finally:
             logger.indent -= 2
 
