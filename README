@@ -345,6 +345,11 @@ welcome.
   
 * Buildout support? 
 
+* The ``/tmp/box_...`` trick has some drawbacks: it is not possible to
+  install two boxes with the same uuid in the same machine, because
+  the symlink can point to only one of the two. Would be good to find
+  a different solution (as portable as possible).
+
 * It has been suggested that ``box`` is too generic for the script
   name, and there could be collisions. If I receive enough feedback
   about this issue, I could rename the script to ``pbox`` or something
