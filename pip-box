@@ -481,6 +481,12 @@ class FreezeCommand(Command):
             default=[],
             metavar='URL',
             help='URL for finding packages, which will be added to the frozen requirements file')
+        self.parser.add_option(
+            '-b', '--box',
+            dest='box',
+            action='store_true',
+            default=False,
+            help='Freeze only packages in the current box')
 
     def run(self, options, args):
         if args:
@@ -489,6 +495,14 @@ class FreezeCommand(Command):
             filename = '-'
         requirement = options.requirement
         find_links = options.find_links or []
+        if options.box:
+            box = get_current_box()
+            assert box is not None
+            python_version = 'python' + '.'.join([str(x) for x in sys.version_info[:2]])
+            working_set = pkg_resources.WorkingSet([os.path.join(box.virtual_path, 'lib', python_version, 'site-packages')])
+        else:
+            working_set = pkg_resources.working_set
+        
         ## FIXME: Obviously this should be settable:
         find_tags = False
         skip_match = None
@@ -504,7 +518,7 @@ class FreezeCommand(Command):
             ## FIXME: should be possible to overwrite requirement file
             logger.notify('Writing frozen requirements to %s' % filename)
             f = open(filename, 'w')
-        for dist in pkg_resources.working_set:
+        for dist in working_set:
             if dist.has_metadata('dependency_links.txt'):
                 dependency_links.extend(dist.get_metadata_lines('dependency_links.txt'))
         for link in find_links:
@@ -513,7 +527,7 @@ class FreezeCommand(Command):
         for link in find_links:
             f.write('-f %s\n' % link)
         installations = {}
-        for dist in pkg_resources.working_set:
+        for dist in working_set:
             if dist.key in ('setuptools', 'pip', 'python'):
                 ## FIXME: also skip virtualenv?
                 continue
