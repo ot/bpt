@@ -133,7 +133,7 @@ class Box(object):
             for directory in STANDARD_DIRS:
                 os.makedirs(os.path.join(dest_path, directory))
         except OSError, exc:
-            raise UserError('Impossible to create destination directories: "%s"', 
+            raise UserError('Impossible to create destination directories: "%s"' % 
                             str(exc))
 
         box_info = dict()
