@@ -121,12 +121,12 @@ def autobuild_dir(box, source_dir, basename, configure_options):
 
     log.info('Building and installing as package %s', pkg.name)
     for cmd in cmd_list:
-        check_call(['bash', '-e', box.env_script, cmd], cwd=source_dir)
+        check_call(['bash', '-e', box.env_script, cmd], cwd=source_dir, stdout=stdout)
 
     box.enable_package(pkg)
     
 
-def autobuild(box, filename, configure_options='', keep_temp=False):
+def autobuild(box, filename, configure_options='', keep_temp=False, stdout=None):
     if not os.path.exists(filename):
         raise UserError('File %s does not exist' % filename)
     if os.path.isdir(filename):

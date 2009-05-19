@@ -45,7 +45,7 @@ class SourceDir(object):
 
         return outtext
 
-    def build(self, box, name_suffix=''):
+    def build(self, box, name_suffix='', stdout=None):
         appname = self.get_var('BPT_APP_NAME')
         version = self.get_var('BPT_APP_VERSION')
 
@@ -80,7 +80,7 @@ class SourceDir(object):
                    + 'bpt_unpack;'
                    + 'bpt_build;'
                    )
-        retcode = call(['bash', '-e', box.env_script, sh_line])
+        retcode = call(['bash', '-e', box.env_script, sh_line], stdout=stdout)
         if retcode != 0:
             raise UserError('FATAL: build script exited with status %s' % retcode)
 
