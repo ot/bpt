@@ -79,7 +79,7 @@ def guess_name_version(basename):
     name, version = match.groups()
     return name, version
 
-def autobuild_dir(box, source_dir, basename, configure_options):
+def autobuild_dir(box, source_dir, basename, configure_options, stdout=None):
 
     name, version = guess_name_version(basename)
     log.info('Guessed application name "%s", version "%s"', name, version)
@@ -146,7 +146,7 @@ def autobuild(box, filename, configure_options='', keep_temp=False, stdout=None)
             if len(unpacked_dirs) != 1:
                 raise UnsupportedPath('Could not find source directory')
             source_dir, = unpacked_dirs
-            autobuild_dir(box, source_dir, basename, configure_options)
+            autobuild_dir(box, source_dir, basename, configure_options, stdout)
         finally:
             if keep_temp:
                 log.info('Not deleting temporary files in directory %s', build_dir)

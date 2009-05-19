@@ -2,6 +2,16 @@
  BPT changelog
 ===============
 
+Version 0.5
+===========
+
+- Added ability to ``pip-box`` to freeze only packages contained in
+  the current box
+  
+- Added the ability of redirecting stdout from the build API
+  
+- Minor fixes
+
 Version 0.4
 ===========
 
