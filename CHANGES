@@ -2,6 +2,14 @@
  BPT changelog
 ===============
 
+Version 0.5.1
+=============
+
+- Switched to new version numbering scheme!
+
+- pip-box checks for already installed packages only in the current
+  box
+
 Version 0.5
 ===========
 
@@ -25,7 +33,6 @@ Version 0.4
 
 - Written some new documentation, added a TODO list
 
-
 Version 0.3
 ===========
 
@@ -40,7 +47,6 @@ Version 0.3
   present in vanilla OSX
 
 - Other minor fixes
-
 
 Version 0.2a
 ============

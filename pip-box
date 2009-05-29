@@ -496,10 +496,7 @@ class FreezeCommand(Command):
         requirement = options.requirement
         find_links = options.find_links or []
         if options.box:
-            box = get_current_box()
-            assert box is not None
-            python_version = 'python' + '.'.join([str(x) for x in sys.version_info[:2]])
-            working_set = pkg_resources.WorkingSet([os.path.join(box.virtual_path, 'lib', python_version, 'site-packages')])
+            working_set = get_box_working_set()
         else:
             working_set = pkg_resources.working_set
         
@@ -1250,6 +1247,8 @@ class InstallRequirement(object):
         # True if the editable should be updated:
         self.update = update
 
+        self._box_working_set = get_box_working_set()
+
     @classmethod
     def from_editable(cls, editable_req, comes_from=None):
         name, url = parse_editable(editable_req)
@@ -1634,9 +1633,11 @@ execfile(__file__)
         """Checks if this requirement is satisfied by something already installed"""
         if self.req is None:
             return False
-        try:
-            dist = pkg_resources.get_distribution(self.req)
-        except pkg_resources.DistributionNotFound:
+        
+        dist = self.req
+        if isinstance(dist, basestring): dist = pkg_resources.Requirement.parse(dist)
+        dist = self._box_working_set.find(dist)
+        if not dist:
             return False
         self.satisfied_by = dist
         return True
@@ -3406,6 +3407,14 @@ def parse_requirements(filename, finder, comes_from=None):
             else:
                 req = InstallRequirement.from_line(line, comes_from)
             yield req
+
+def get_box_working_set():
+    box = get_current_box()
+    assert box is not None
+    python_version = 'python' + '.'.join([str(x) for x in sys.version_info[:2]])
+    working_set = pkg_resources.WorkingSet([os.path.join(box.virtual_path, 'lib', python_version, 'site-packages')])
+    return working_set
+
 
 ############################################################
 ## Logging
