@@ -28,6 +28,7 @@ DYN_DIRS = ['bin', 'sbin', 'lib', 'man', 'share', 'include']
 STANDARD_DIRS = ['pkgs', 'bpt_meta'] + DYN_DIRS
 
 STANDARD_PATH_VARS = [('PATH', 'bin'), 
+                      ('PATH', 'sbin'), 
                       ('LIBRARY_PATH', 'lib'), 
                       ('LD_LIBRARY_PATH', 'lib'),
                       ('DYLD_LIBRARY_PATH', 'lib'), 
