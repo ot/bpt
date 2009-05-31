@@ -21,11 +21,11 @@ from bpt.util import store_info, load_info
 from bpt.linkdir import linkdir, unlinkdir
 from bpt.package import Package
 
-# Directories created inside the box
-STANDARD_DIRS = ['pkgs', 'bpt_meta', 'bin', 'lib', 'man', 'share', 'include']
-
 # Directories whose contents are linked from every package to the box
-DYN_DIRS = ['bin', 'lib', 'man', 'share', 'include']
+DYN_DIRS = ['bin', 'sbin', 'lib', 'man', 'share', 'include']
+
+# Directories created inside the box
+STANDARD_DIRS = ['pkgs', 'bpt_meta'] + DYN_DIRS
 
 STANDARD_PATH_VARS = [('PATH', 'bin'), 
                       ('LIBRARY_PATH', 'lib'), 
