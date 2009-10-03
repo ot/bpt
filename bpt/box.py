@@ -27,13 +27,15 @@ DYN_DIRS = ['bin', 'sbin', 'lib', 'man', 'share', 'include']
 # Directories created inside the box
 STANDARD_DIRS = ['pkgs', 'bpt_meta'] + DYN_DIRS
 
+# Note that MANPATH is not there: setting it would screw up the system
+# manpath. It will be automatically deduced from PATH by any modern
+# man implementation
 STANDARD_PATH_VARS = [('PATH', 'bin'), 
                       ('PATH', 'sbin'), 
                       ('LIBRARY_PATH', 'lib'), 
                       ('LD_LIBRARY_PATH', 'lib'),
                       ('DYLD_LIBRARY_PATH', 'lib'), 
                       ('CPATH', 'include'), 
-                      ('MANPATH', 'man'), 
                       ('PKG_CONFIG_PATH', os.path.join('lib', 'pkgconfig'))]
 
 ENV_SCRIPT_TMPL = os.path.abspath(
