@@ -2,6 +2,13 @@
  BPT changelog
 ===============
 
+Version 0.5.2
+=============
+
+- Fixed MANPATH issue: on Linux it does no more shadow system manpath
+
+- Minor fixes
+
 Version 0.5.1
 =============
 
