@@ -15,7 +15,7 @@ class ParserExit(Exception):
     '''Exception used by the option parser to signal program exit'''
 
 class BPTOptionParser(OptionParser):
-    def exit(self):
+    def exit(self, name=None, msg=None):
         raise ParserExit
 
 class Config(object):

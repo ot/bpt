@@ -27,7 +27,7 @@ class UnsupportedPath(Exception):
 def guess_unpack_cmd(filename):
     '''
     >>> guess_unpack_cmd('/tmp/python-2.5.tar.gz')
-    ('python-2.5', ['tar', 'zsxf', '/tmp/python-2.5.tar.gz'])
+    ('python-2.5', ['tar', 'zxf', '/tmp/python-2.5.tar.gz'])
     
     >>> guess_unpack_cmd('/tmp/unsupported.7z')
     Traceback (most recent call last):
@@ -42,16 +42,16 @@ def guess_unpack_cmd(filename):
         root, ext = os.path.splitext(root)
         if ext != '.tar':
             raise UnsupportedPath('Unsupported extension')
-        cmd = ['tar', 'zsxf']
+        cmd = ['tar', 'zxf']
     elif ext == '.bz2':
         root, ext = os.path.splitext(root)
         if ext != '.tar':
             raise UnsupportedPath('Unsupported extension')
-        cmd = ['tar', 'jsxf']
+        cmd = ['tar', 'jxf']
     elif ext == '.tar':
-        cmd = ['tar', 'sxf']
+        cmd = ['tar', 'xf']
     elif ext == '.tgz':
-        cmd = ['tar', 'zsxf']
+        cmd = ['tar', 'zxf']
     elif ext == '.zip':
         cmd = ['unzip']
     else:
