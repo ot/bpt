@@ -2,8 +2,8 @@
  Boxed Package Tool (BPT)
 ==========================
 
-* `Mercurial repository <http://bitbucket.org/ot/bpt/>`_
-* `Issue tracker <http://bitbucket.org/ot/bpt/issues/>`_
+* `Git repository <https://github.com/ot/bpt>`_
+* `Issue tracker <https://github.com/ot/bpt/issues>`_
 
 What is BPT
 ===========
