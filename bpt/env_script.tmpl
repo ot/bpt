@@ -6,21 +6,27 @@ then # bash < 3.0; will not be able to source this script ($0 changes)
     ENV_SCRIPT_PATH="$0"
 fi
 
-export BPT_BOX_PATH=$(cd $(dirname -- "$ENV_SCRIPT_PATH") && pwd -P) 
+if [ ! -x "/tmp/boxes" ]
+then
+    mkdir -p /tmp/boxes
+    chmod 777 /tmp/boxes
+fi
+
+export BPT_BOX_PATH=$(cd $(dirname -- "$ENV_SCRIPT_PATH") && pwd -P)
 VIRTUAL_PATH="%(virtual_path)s"
 
-if ( ! ln -sn "$BPT_BOX_PATH" "$VIRTUAL_PATH" 2> /dev/null ) 
+if ( ! ln -sn "$BPT_BOX_PATH" "$VIRTUAL_PATH" 2> /dev/null )
 then # The destination path already exists
     POINTEE=$(cd "$VIRTUAL_PATH" &&  pwd -P)
-    if [ "$POINTEE" != "$BPT_BOX_PATH" ] 
+    if [ "$POINTEE" != "$BPT_BOX_PATH" ]
     then # and it doesn't point to the current box
         echo "ERROR: \"$VIRTUAL_PATH\" already exists but is linked to $POINTEE"
-	echo "but it should be linked to $BPT_BOX_PATH."
+    echo "but it should be linked to $BPT_BOX_PATH."
         echo "Please remove it manually."
-	if [ $(basename -- "$0") == "env" ] # if source'd or bash < 3.0, don't exit
-	then 
-	    exit 1
-	fi
+    if [ $(basename -- "$0") == "env" ] # if source'd or bash < 3.0, don't exit
+    then
+        exit 1
+    fi
     fi
 fi
 

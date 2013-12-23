@@ -30,12 +30,12 @@ STANDARD_DIRS = ['pkgs', 'bpt_meta'] + DYN_DIRS
 # Note that MANPATH is not there: setting it would screw up the system
 # manpath. It will be automatically deduced from PATH by any modern
 # man implementation
-STANDARD_PATH_VARS = [('PATH', 'bin'), 
-                      ('PATH', 'sbin'), 
-                      ('LIBRARY_PATH', 'lib'), 
+STANDARD_PATH_VARS = [('PATH', 'bin'),
+                      ('PATH', 'sbin'),
+                      ('LIBRARY_PATH', 'lib'),
                       ('LD_LIBRARY_PATH', 'lib'),
-                      ('DYLD_LIBRARY_PATH', 'lib'), 
-                      ('CPATH', 'include'), 
+                      ('DYLD_LIBRARY_PATH', 'lib'),
+                      ('CPATH', 'include'),
                       ('PKG_CONFIG_PATH', os.path.join('lib', 'pkgconfig'))]
 
 ENV_SCRIPT_TMPL = os.path.abspath(
@@ -43,7 +43,7 @@ ENV_SCRIPT_TMPL = os.path.abspath(
 
 class Box(object):
     '''\
-    Represents a package box in the filesystem. 
+    Represents a package box in the filesystem.
 
     The constructor expects an existing box. A new one can be created
     with the class method create()
@@ -53,8 +53,8 @@ class Box(object):
         self._path = os.path.abspath(box_path)
 
         try:
-            box_info = load_info(os.path.join(self.path, 
-                                              'bpt_meta', 
+            box_info = load_info(os.path.join(self.path,
+                                              'bpt_meta',
                                               'box_info'))
         except (OSError, IOError):
             raise UserError('Invalid box: impossible to read box_info')
@@ -64,7 +64,15 @@ class Box(object):
             self._platform = box_info['platform']
         except KeyError, exc:
             raise UserError('Invalid box_info: missing "%s"', str(exc))
-        
+
+        # Ensure that /tmp/boxes exists
+        try:
+            os.makedirs('/tmp/boxes')
+            os.chmod('/tmp/boxes', 0777)
+        except OSError, exc:
+            if exc.errno != 17:
+                raise UserError('Error creating /tmp/boxes')
+
         # Ensure that the virtual path symlink is existing and points
         # to the correct location
         try:
@@ -72,18 +80,18 @@ class Box(object):
         except OSError, exc:
             if exc.errno == 17 and \
                     not os.path.samefile(self.path, self.virtual_path):
-                raise UserError('Virtual path symlink %s exists but ' 
+                raise UserError('Virtual path symlink %s exists but '
                                 'does not point to this box. Please remove '
                                 'it manually', self.virtual_path)
 
     def __repr__(self):
         return "Box('%s')" % self.path
-    
+
     @property
     def box_id(self):
         '''Unique id of the box, used to build the virtual path'''
         return self._id
-    
+
     @property
     def path(self):
         '''Actual path of the box'''
@@ -93,7 +101,7 @@ class Box(object):
     def virtual_path(self):
         '''Virtual (or relocatable) path of the box. It is a symlink
         that points to the box, but does not depend on the actual path'''
-        return os.path.join('/tmp', 'box_' + self.box_id)
+        return os.path.join('/tmp', 'boxes', self.box_id)
 
     @property
     def name(self):
@@ -136,7 +144,7 @@ class Box(object):
             for directory in STANDARD_DIRS:
                 os.makedirs(os.path.join(dest_path, directory))
         except OSError, exc:
-            raise UserError('Impossible to create destination directories: "%s"' % 
+            raise UserError('Impossible to create destination directories: "%s"' %
                             str(exc))
 
         box_info = dict()
@@ -149,7 +157,7 @@ class Box(object):
         box.sync()
         log.info('Created box with id %s in directory %s', box.box_id, box.path)
         return box
-    
+
     def sync(self):
         '''Recreate all the symlinks and the env script, restoring the
         consistency of the box.'''
@@ -160,7 +168,7 @@ class Box(object):
             shutil.rmtree(d_path)
             os.makedirs(d_path)
 
-        # Relink all packages    
+        # Relink all packages
         for package in self.packages(only_enabled=True):
             self._link_package(package)
 
@@ -193,7 +201,7 @@ class Box(object):
                         if regexp.match(pkg.name):
                             yield pkg
                             break
-                            
+
     def create_package(self, pkg_name, **pkg_info):
         pkg_prefix = os.path.join(self.virtual_path, 'pkgs', pkg_name)
 
@@ -214,7 +222,7 @@ class Box(object):
         package.enabled = True
         self._link_package(package)
         self._create_env_script()
-        
+
 
     def disable_package(self, package, remove=False):
         if not remove:
@@ -250,7 +258,7 @@ class Box(object):
 
     def _create_env_script(self):
         virtual_path = self.virtual_path
-        path_updates = '\n'.join('export %s="$VIRTUAL_PATH/%s${%s:+:$%s}"' % (v, d, v, v) 
+        path_updates = '\n'.join('export %s="$VIRTUAL_PATH/%s${%s:+:$%s}"' % (v, d, v, v)
                                  for v, d in STANDARD_PATH_VARS)
 
         # Collect package env scripts
@@ -265,12 +273,12 @@ class Box(object):
                     f.close()
 
         pkg_env_scripts = '\n'.join(pkg_env_scripts)
-        
+
         env_script = open(ENV_SCRIPT_TMPL).read() % locals() # XXX(ot) close file?
-        
+
         env_script_file = open(self.env_script, 'w')
 
-        try: 
+        try:
             env_script_file.write(env_script)
         finally:
             env_script_file.close()
@@ -295,8 +303,7 @@ def get_current_box():
         except UserError, exc:
             log.warning('Not using current box %s because of error "%s"', box_path, str(exc))
     return None
-    
+
 def _get_platform():
     u = os.uname()
     return (u[0], u[4])
-
