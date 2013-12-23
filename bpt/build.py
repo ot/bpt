@@ -13,10 +13,10 @@ import os
 from subprocess import call
 
 from bpt import log, UserError
-from bpt.util import getstatusoutput, store_info, load_info
+from bpt.util import getstatusoutput, store_info, load_info, cpu_count
 
 BASE_SH_SCRIPT = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), 
+    os.path.join(os.path.dirname(__file__),
                  'bpt_base_script.sh')
     )
 
@@ -29,7 +29,7 @@ class SourceDir(object):
 
     @property
     def path(self): return self._sourcedir
-    
+
     def get_var(self, var, can_be_empty=False):
         # XXX(ot) find a better way to do this
         sh_line = ('cd %s;' % self._sourcedir
@@ -54,13 +54,13 @@ class SourceDir(object):
         if os.path.exists(bpt_status_file):
             bpt_status = load_info(bpt_status_file)
             last_box_id = bpt_status.get('last_box_id', box.box_id)
-            if last_box_id != box.box_id: 
+            if last_box_id != box.box_id:
                 log.info('Intermediate files built for another package box. Cleaning first.')
                 self.clean()
 
         # Write the current box_id
         store_info(bpt_status_file, dict(last_box_id=box.box_id))
-        
+
         if not box.check_platform():
             raise UserError('Current platform is different from box\'s platform')
 
@@ -75,6 +75,7 @@ class SourceDir(object):
         sh_line = ('source "%s";' % BASE_SH_SCRIPT
                    + 'cd "%s";' % self._sourcedir
                    + 'export BPT_PKG_PREFIX="%s";' % pkg.path
+                   + 'export BPT_CPU_COUNT="%d";' % cpu_count()
                    + 'source bpt-rules;'
                    + 'bpt_download;'
                    + 'bpt_unpack;'
@@ -86,7 +87,7 @@ class SourceDir(object):
 
         box.enable_package(pkg)
         return pkg
-        
+
     def clean(self, deep=False):
         log.info('Cleaning sourcedir %s', self.path)
         sh_line = ('source "%s";' % BASE_SH_SCRIPT
@@ -95,7 +96,7 @@ class SourceDir(object):
                    + 'source bpt-rules;'
                    + 'bpt_clean;'
                    )
-        if deep: 
+        if deep:
             sh_line += 'bpt_deepclean;'
         exitstatus, outtext = getstatusoutput("bash -e -c '%s'" % sh_line)
         assert exitstatus == 0, (exitstatus, outtext)
@@ -112,5 +113,3 @@ class SourceDir(object):
             log.warning('unittest exited with exit code %s. Some tests may have failed', exitstatus)
             return False
         return True
-        
-    

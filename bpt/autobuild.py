@@ -17,10 +17,11 @@ from subprocess import check_call
 from shutil import rmtree
 
 from bpt import log, UserError
+from bpt.util import cpu_count
 
-SETUPTOOLS_WORKAROUND = True 
+SETUPTOOLS_WORKAROUND = True
 
-class UnsupportedPath(Exception): 
+class UnsupportedPath(Exception):
     '''Unable to guess file extension, package metadata or how to
     build the package'''
 
@@ -28,7 +29,7 @@ def guess_unpack_cmd(filename):
     '''
     >>> guess_unpack_cmd('/tmp/python-2.5.tar.gz')
     ('python-2.5', ['tar', 'zxf', '/tmp/python-2.5.tar.gz'])
-    
+
     >>> guess_unpack_cmd('/tmp/unsupported.7z')
     Traceback (most recent call last):
     ...
@@ -58,7 +59,7 @@ def guess_unpack_cmd(filename):
         raise UnsupportedPath('Unsupported file extension')
 
     cmd.append(os.path.abspath(filename))
-    
+
     return root, cmd
 
 FILENAME_RE = re.compile(r'^(.*)-(\d.*)$')
@@ -85,20 +86,20 @@ def autobuild_dir(box, source_dir, basename, configure_options, stdout=None):
     log.info('Guessed application name "%s", version "%s"', name, version)
 
     # XXX(ot): disable package if something goes wrong?
-    pkg = box.create_package(basename, 
-                             app_name=name, 
+    pkg = box.create_package(basename,
+                             app_name=name,
                              app_version=version,
                              enabled=False)
 
     if os.path.exists(os.path.join(source_dir, 'configure')):
         cmd_list = [
             "./configure --prefix '%s' %s" % (pkg.path, configure_options),
-            "make install"
+            "make -j%d install" % cpu_count()
             ]
     elif os.path.exists(os.path.join(source_dir, 'setup.py')):
         envvars = ''
         if SETUPTOOLS_WORKAROUND:
-            # Workaround two bugs of setuptools 
+            # Workaround two bugs of setuptools
             # (fixed in http://bugs.python.org/setuptools/issue54 )
             # - Put the site-packages path in python's path
             # - Create the site-packages directory
@@ -108,12 +109,12 @@ def autobuild_dir(box, source_dir, basename, configure_options, stdout=None):
             python_version = '.'.join([str(x) for x in sys.version_info[:2]])
             site_path = '%s/lib/python%s/site-packages/' % (pkg.path, python_version)
             envvars = 'PYTHONPATH="%s${PYTHONPATH:+:$PYTHONPATH}"' % site_path
-            try: 
+            try:
                 os.makedirs(site_path)
-            except OSError: 
+            except OSError:
                 pass
         cmd_list = [
-            "%s python setup.py install --prefix '%s' %s" % 
+            "%s python setup.py install --prefix '%s' %s" %
             (envvars, pkg.path, configure_options),
             ]
     else:
@@ -124,7 +125,7 @@ def autobuild_dir(box, source_dir, basename, configure_options, stdout=None):
         check_call(['bash', '-e', box.env_script, cmd], cwd=source_dir, stdout=stdout)
 
     box.enable_package(pkg)
-    
+
 
 def autobuild(box, filename, configure_options='', keep_temp=False, stdout=None):
     if not os.path.exists(filename):
@@ -140,7 +141,7 @@ def autobuild(box, filename, configure_options='', keep_temp=False, stdout=None)
             log.info('Unpacking the file...')
             check_call(unpack_cmd, cwd=build_dir)
 
-            unpacked_files = [os.path.join(build_dir, f) 
+            unpacked_files = [os.path.join(build_dir, f)
                               for f in os.listdir(build_dir)]
             unpacked_dirs = [d for d in unpacked_files if os.path.isdir(d)]
             if len(unpacked_dirs) != 1:
@@ -152,6 +153,3 @@ def autobuild(box, filename, configure_options='', keep_temp=False, stdout=None)
                 log.info('Not deleting temporary files in directory %s', build_dir)
             else:
                 rmtree(build_dir)
-    
-
-        
